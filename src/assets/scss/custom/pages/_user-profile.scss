@@ -1,0 +1,34 @@
+.profile-header {
+  justify-content: space-between;
+  h4 {
+    font-weight: bold;
+  }
+  h5 {
+    margin-top: 5%;
+  }
+  button {
+    margin-top: 3%;
+  }
+}
+.edit-icon {
+  width: 15px;
+  height: 15px;
+}
+.image-container {
+  max-width: 150px;
+  max-height: 150px;
+  position: relative;
+  Button {
+    margin-top: 40%;
+    position: absolute;
+    top: 5px;
+    right: 45px;
+  }
+  .blur-image {
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+  }
+}
+.no-longer-employee-btn {
+  float: right;
+}

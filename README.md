@@ -1,24 +1,14 @@
-# Track Analytics App 
+# Track analytics app Rimac - Frontend App
 
-## About the project
+<h3>About the project</h3>
+<br>
+<p>Project description goes here</p>
+<br>
+<h3>Installation</h3>
 
-Project description goes here....
+<ul>
+<li>Clone project locally - <strong>git clone remote_url</strong></li>
+<li>Install dependencies - <strong>yarn install</strong></li>
+<li>Start the project - <strong>yarn start</strong></li>
+</ul>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Starting the project
-
-In the project directory, you can run:
-
-### `npm install
-
-### `npm start
-
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
