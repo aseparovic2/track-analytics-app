@@ -14,12 +14,18 @@ import { withRouter, useHistory } from "react-router-dom"
 
 // users
 import user1 from "../../../assets/images/users/avatar-1.jpg"
+import { getAuth } from "firebase/auth"
 
 const ProfileMenu = props => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false)
   const [username, setusername] = useState("Admin")
   const history = useHistory();
+  const authentication = getAuth();
+
+  useEffect(() => {
+   //setusername(authentication.currentUser.email)
+  }, [authentication])
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {

@@ -3,6 +3,7 @@ import MetaTags from "react-meta-tags"
 import React from "react"
 import { useHistory } from "react-router-dom"
 import { Row, Col, Alert, Card, CardBody, Container, FormFeedback, Input, Label, Form } from "reactstrap"
+import { getAuth, sendPasswordResetEmail } from "firebase/auth"
 
 import { withRouter, Link } from "react-router-dom"
 
@@ -11,12 +12,14 @@ import * as Yup from "yup"
 import { useFormik } from "formik"
 
 // import images
-import profile from "../../../assets/images/profile-img.png"
-import logo from "../../../assets/images/logo.svg"
+import profile from "assets/images/nevera-removebg-preview.png"
+import { fireAlert } from "../../../components/Common/Alert"
 
 const ForgetPasswordPage = props => {
 
   const history = useHistory()
+  const authentication = getAuth();
+
   const validation = useFormik({
     initialValues: {
       email: ""
@@ -24,8 +27,14 @@ const ForgetPasswordPage = props => {
     validationSchema: Yup.object({
       email: Yup.string().required("Please Enter Your Email")
     }),
-    onSubmit: (values) => {
-      history.push("/forgot-password-reset")
+    onSubmit:  (values) => {
+       sendPasswordResetEmail(authentication,values.email).then(response => {
+        fireAlert("Reset password","Reset password email sent successfully","success")
+      }).catch(error => {
+         if (error.code === 'auth/user-not-found') {
+           fireAlert("Reset password","User with that email is not found in our database","error")
+         }
+      })
     }
   })
 
@@ -46,12 +55,12 @@ const ForgetPasswordPage = props => {
           <Row className="justify-content-center">
             <Col md={8} lg={6} xl={5}>
               <Card className="overflow-hidden">
-                <div className="bg-primary bg-softbg-soft-primary">
+                <div className="bg-soft" style={{backgroundColor: '#2a3042', color: "white"}}>
                   <Row>
                     <Col xs={7}>
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Welcome Back !</h5>
-                        <p>Sign in to continue to Skote.</p>
+                      <div className=" p-4">
+                        <h2 style={{color: 'white'}}>Forgot pass?</h2>
+                        <p> No worries, enter your email and you will get reset link</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -60,20 +69,6 @@ const ForgetPasswordPage = props => {
                   </Row>
                 </div>
                 <CardBody className="pt-0">
-                  <div>
-                    <Link to="/">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
-                          <img
-                            src={logo}
-                            alt=""
-                            className="rounded-circle"
-                            height="34"
-                          />
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
                   <div className="p-2">
                     <Form
                       className="form-horizontal"
@@ -84,9 +79,6 @@ const ForgetPasswordPage = props => {
                       }}
                     >
                       <div className="mb-3">
-                        <Alert color="success" style={{ marginTop: "13px" }}>
-                          Enter your email and instructions will be sent to you
-                        </Alert>
                         <Label className="form-label">Email</Label>
                         <Input
                           name="email"
