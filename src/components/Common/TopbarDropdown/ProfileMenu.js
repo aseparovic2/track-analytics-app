@@ -19,18 +19,19 @@ import { getAuth } from "firebase/auth"
 const ProfileMenu = props => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false)
-  const [username, setusername] = useState("Admin")
+  const [username, setusername] = useState("User")
   const history = useHistory();
   const authentication = getAuth();
 
   useEffect(() => {
-   //setusername(authentication.currentUser.email)
+   setusername(authentication?.currentUser?.email)
   }, [authentication])
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {
       if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
         const obj = JSON.parse(localStorage.getItem("authUser"))
+        console.log(obj)
         setusername(obj.displayName)
       } else if (
         process.env.REACT_APP_DEFAULTAUTH === "fake" ||
@@ -40,7 +41,7 @@ const ProfileMenu = props => {
         setusername(obj.username)
       }
     }
-  }, [props.success])
+  }, [])
 
   return (
     <React.Fragment>

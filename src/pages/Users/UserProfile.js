@@ -259,10 +259,6 @@ const UserProfiles = props => {
                     </Modal>
                   </CardBody>
                 </Card>
-                {/*CONTACTS*/}
-                <ContactsTable profile={'USER'} data={contacts}/>
-                {/*ADDRESSES*/}
-                <AddressesTable profile={'USER'} data={addresses}/>
               </Col>
             </Row>
           </div>
