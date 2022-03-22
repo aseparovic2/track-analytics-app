@@ -18,7 +18,7 @@ import Users from "../pages/Users/Users"
 import UserProfiles from "../pages/Users/UserProfile"
 import UserInvites from "../pages/Users/UserInvites"
 import Rides from "../pages/Rides"
-import RideDetails from "../pages/RideDetails"
+import CarList from "../pages/Cars"
 
 
 
@@ -27,8 +27,8 @@ const authProtectedRoutes = [
   { path: "/users", component: Users },
   { path: "/user-invites", component: UserInvites },
   { path: "/user-profile/:id", component: UserProfiles},
-  { path: "/rides", component: Rides},
-  { path: "/ride-details/:id", component: RideDetails},
+  { path: "/telemetry-data", component: Rides},
+  { path: "/vehicles", component: CarList},
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name
   { path: "/", exact: true, component: () => <Redirect to="/dashboard" /> },

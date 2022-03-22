@@ -5,9 +5,8 @@ import { Link } from "react-router-dom";
 
 // Import menuDropdown
 import ProfileMenu from "../Common/TopbarDropdown/ProfileMenu";
+import smallLogo from 'assets/images/rimac-logo.png'
 
-import logo from "../../assets/images/logo.svg";
-import logoLightSvg from "../../assets/images/logo-light.svg";
 
 //i18n
 import { withTranslation } from "react-i18next";
@@ -35,13 +34,13 @@ const Header = props => {
             <div className="navbar-brand-box d-lg-none d-md-block">
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <img src={logo} alt="" height="22" />
+                  <img src={smallLogo} alt="" height="80" width="80"/>
                 </span>
               </Link>
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={logoLightSvg} alt="" height="22" />
+                  <img src={smallLogo} alt="" height="100" />
                 </span>
               </Link>
             </div>

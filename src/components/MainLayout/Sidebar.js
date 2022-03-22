@@ -8,11 +8,8 @@ import { withTranslation } from "react-i18next";
 import SidebarContent from "./SidebarContent";
 
 import { Link } from "react-router-dom";
+import smallLogo from 'assets/images/rimac-logo.png'
 
-import logo from "../../assets/images/logo.svg";
-import logoLightPng from "../../assets/images/logo-light.png";
-import logoLightSvg from "../../assets/images/logo-light.svg";
-import logoDark from "../../assets/images/logo-dark.png";
 
 const Sidebar = props => {
 
@@ -20,7 +17,14 @@ const Sidebar = props => {
     <React.Fragment>
       <div className="vertical-menu">
         <div className="navbar-brand-box">
-          <h4 style={{marginTop: 30, color: '#a6b0cf'}}>Track Analytics App</h4>
+          <Link to="/" className="logo logo-dark">
+            <span className="logo-sm">
+              <img src={smallLogo} alt="" height="60" width="60" />
+            </span>
+            <span className="logo-lg">
+              <img src={smallLogo} alt="" height="120" width="120"/>
+            </span>
+          </Link>
         </div>
         <div data-simplebar className="h-100">
           <SidebarContent />

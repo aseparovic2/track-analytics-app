@@ -100,9 +100,15 @@ const SidebarContent = props => {
               </Link>
             </li>
             <li>
-              <Link to="/rides" className=" ">
+              <Link to="/telemetry-data" className=" ">
+                <i className="bx bxs-data"/>
+                <span>Telemetry data</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/vehicles" className=" ">
                 <i className="bx bxs-car"/>
-                <span>Rides</span>
+                <span>Veicles</span>
               </Link>
             </li>
             <li>
