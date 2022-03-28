@@ -108,23 +108,18 @@ const SidebarContent = props => {
             <li>
               <Link to="/vehicles" className=" ">
                 <i className="bx bxs-car"/>
-                <span>Veicles</span>
+                <span>Vehicles</span>
               </Link>
             </li>
             <li>
               <Link to="/#" >
                 <i className="bx bx-user"/>
-                <span>{props.t("User")}</span>
+                <span>Admin</span>
               </Link>
               <ul className="sub-menu" aria-expanded="false">
                 <li>
                   <Link to="/users" className=" ">
                     {props.t("Users")}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/user-invites" className=" ">
-                    {props.t("InviteNewUsers")}
                   </Link>
                 </li>
               </ul>

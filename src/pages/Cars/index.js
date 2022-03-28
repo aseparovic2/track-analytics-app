@@ -102,7 +102,6 @@ const CarList = props => {
     },
   ];
 
-
   const contactListColumns = [
     {
       text: "ID",
