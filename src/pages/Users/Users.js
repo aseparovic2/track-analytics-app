@@ -21,29 +21,11 @@ import Breadcrumbs from "../../components/Common/Breadcrumb"
 import { removeBodyCss } from "../../helpers/removeBodyCss"
 import { useFormik } from "formik"
 import * as Yup from "yup"
-import DataTable from "../../components/Common/DataTable/DataTable"
-import { useMutation, useQuery } from "jsonapi-react"
-import { fireAlert } from "../../components/Common/Alert"
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit"
 import paginationFactory, { PaginationListStandalone, PaginationProvider } from "react-bootstrap-table2-paginator"
 import BootstrapTable from "react-bootstrap-table-next"
-
-const users = [
-  {
-    id: 1,
-    full_name: 'John Doe',
-    email: 'john@doe.com',
-    cars: [],
-    role: 1
-  },
-  {
-    id: 2,
-    full_name: 'Jure Juric',
-    email: 'jurejuric@gmail.com',
-    cars: [1,4],
-    role: 2
-  }
-]
+import {ALL_USERS} from "../../graphql/queries/users"
+import { useQuery } from "@apollo/client"
 
 const allCars = [
   {
@@ -73,12 +55,14 @@ const Users = () => {
   const [initialValue, setInitialValue] = useState({})
   const [isEdit, setIsEdit] = useState(false);
   const [modal, setModal] = useState(false);
+  const { loading, error, data} = useQuery(ALL_USERS);
+
 
   const { SearchBar } = Search;
   const sizePerPage = 10;
   const pageOptions = {
     sizePerPage: sizePerPage,
-    totalSize: users.length, // replace later with size(users),
+    totalSize: data?.users?.length,
     custom: true,
   };
   const defaultSorted = [
@@ -95,7 +79,6 @@ const Users = () => {
 
     initialValues: initialValue,
     validationSchema: Yup.object({
-      full_name: Yup.string().required("Full Name is required"),
       email: Yup.string().email("Email is not valid!").required("Email is required"),
       role: Yup.number().required("Role is required"),
     }),
@@ -124,10 +107,8 @@ const Users = () => {
     console.log(user)
     setInitialValue({
       id: user.id,
-      full_name: user.full_name,
       email: user.email,
       role: user.role,
-      cars: user.cars
     });
     setIsEdit(true);
 
@@ -137,38 +118,12 @@ const Users = () => {
   const userColumns = [
     {
       text: "ID",
-      dataField: "id",
-    },
-    {
-      text: "Full Name",
-      dataField: "full_name",
-      sort: true,
+      dataField: "_id",
     },
     {
       text: "Email",
       dataField: "email",
       sort: true,
-    },
-    {
-      dataField: "cars",
-      text: "Cars",
-      sort: true,
-      // eslint-disable-next-line react/display-name
-      formatter: (cellContent, user) => (
-        <>
-          <h5 className="font-size-14 mb-1">
-            <Link to="#" className="text-dark">
-              {
-                user.cars.length === 0 ?
-                  'User is not car owner' :
-                  user.cars.map(car => {
-                    return <a href={"$"} key={car}>{`Vehicle(${car})`} </a>
-                  })
-              }
-            </Link>
-          </h5>
-        </>
-      )
     },
     {
       dataField: "role",
@@ -209,6 +164,10 @@ const Users = () => {
     },
   ];
 
+  useEffect(() => {
+    console.log(data)
+  }, [data])
+
 
   return (
     <React.Fragment>
@@ -223,162 +182,195 @@ const Users = () => {
               <Col lg="12">
                 <Card>
                   <CardBody>
-                    <PaginationProvider
-                      pagination={paginationFactory(pageOptions)}
-                      keyField={"id"}
-                      columns={userColumns}
-                      data={users}
-                    >
-                      {({ paginationProps, paginationTableProps }) => {
-                        return (
-                          <ToolkitProvider
-                            keyField={"id"}
-                            data={users}
-                            columns={userColumns}
-                            bootstrap4
-                            search
-                          >
-                            {toolkitProps => (
-                              <React.Fragment>
-                                <Row className="mb-2">
-                                  <Col sm="4">
-                                    <div className="search-box ms-2 mb-2 d-inline-block">
-                                      <div className="position-relative">
-                                        <SearchBar {...toolkitProps.searchProps} />
-                                        <i className="bx bx-search-alt search-icon" />
-                                      </div>
-                                    </div>
-                                  </Col>
-                                  <Col sm="8">
-                                    <div className="text-sm-end">
-                                      <Button
-                                        color="primary"
-                                        className="font-16 btn-block btn btn-primary"
-                                        onClick={handleAddUser}
-                                      >
-                                        <i className="mdi mdi-plus-circle-outline me-1" />
-                                        Add new user
-                                      </Button>
-                                    </div>
-                                  </Col>
-                                </Row>
-                                <Row>
-                                  <Col xl="12">
-                                    <div className="table-responsive">
-                                      <BootstrapTable
-                                        keyField={"id"}
-                                        {...toolkitProps.baseProps}
-                                        {...paginationTableProps}
-                                        defaultSorted={defaultSorted}
-                                        classes={
-                                          "table align-middle table-nowrap table-hover"
-                                        }
-                                        bordered={false}
-                                        striped={false}
-                                        responsive
-                                       // ref={node}
-                                      />
+                    {
+                      loading &&
+                      <div className="my-5 pt-sm-5">
+                        <Container>
+                          <Row>
+                            <Col lg="12">
+                              <div className="text-center">
+                                <h4 className="mt-5">Loading ...</h4>
+                              </div>
+                            </Col>
+                          </Row>
+                        </Container>
+                      </div>
 
-                                      <Modal isOpen={modal} toggle={toggle}>
-                                        <ModalHeader toggle={toggle} tag="h4">
-                                          {!!isEdit ? "Edit User" : "Add User"}
-                                        </ModalHeader>
-                                        <ModalBody>
-                                          <Form
-                                            onSubmit={(e) => {
-                                              e.preventDefault();
-                                              validation.handleSubmit();
-                                              return false;
-                                            }}
-                                          >
-                                            <Row form>
-                                              <Col xs={12}>
-                                                <div className="mb-3">
-                                                  <Label className="form-label">Full Name</Label>
-                                                  <Input
-                                                    name="full_name"
-                                                    type="text"
-                                                    onChange={validation.handleChange}
-                                                    onBlur={validation.handleBlur}
-                                                    value={validation.values.full_name || ""}
-                                                    invalid={
-                                                      validation.touched.full_name && validation.errors.full_name ? true : false
-                                                    }
-                                                  />
-                                                  {validation.touched.full_name && validation.errors.full_name ? (
-                                                    <FormFeedback type="invalid">{validation.errors.full_name}</FormFeedback>
-                                                  ) : null}
-                                                </div>
-                                                <div className="mb-3">
-                                                  <Label className="form-label">Email</Label>
-                                                  <Input
-                                                    name="email"
-                                                    type="text"
-                                                    onChange={validation.handleChange}
-                                                    onBlur={validation.handleBlur}
-                                                    value={validation.values.email || ""}
-                                                    invalid={
-                                                      validation.touched.email && validation.errors.email ? true : false
-                                                    }
-                                                  />
-                                                  {validation.touched.email && validation.errors.email ? (
-                                                    <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
-                                                  ) : null}
-                                                </div>
-                                                <div className="mb-3">
-                                                  <label className="control-label">
-                                                    Cars
-                                                  </label>
-                                                  <Select
-                                                    value={validation.values.cars}
-                                                    isMulti={true}
-                                                    onChange={validation.handleChange}
-                                                    options={allCars}
-                                                    classNamePrefix="select2-selection"
-                                                  />
-                                                </div>
-                                                <div className="mb-3">
-                                                  <Label>Role</Label>
-                                                  <Select
-                                                    value={validation.values.cars}
-                                                    onChange={validation.handleChange}
-                                                    options={allRoles}
-                                                    classNamePrefix="select2-selection"
-                                                  />
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                            <Row>
-                                              <Col>
-                                                <div className="text-end">
-                                                  <button
-                                                    type="submit"
-                                                    className="btn btn-success save-user"
-                                                  >
-                                                    Save
-                                                  </button>
-                                                </div>
-                                              </Col>
-                                            </Row>
-                                          </Form>
-                                        </ModalBody>
-                                      </Modal>
-                                    </div>
-                                  </Col>
-                                </Row>
-                                <Row className="align-items-md-center mt-30">
-                                  <Col className="pagination pagination-rounded justify-content-end mb-2">
-                                    <PaginationListStandalone
-                                      {...paginationProps}
-                                    />
-                                  </Col>
-                                </Row>
-                              </React.Fragment>
-                            )}
-                          </ToolkitProvider>
-                        );
-                      }}
-                    </PaginationProvider>
+                    }
+                    {
+                      error &&
+                      <div className="my-5 pt-sm-5">
+                        <Container>
+                          <Row>
+                            <Col lg="12">
+                              <div className="text-center">
+                                <h4 className="mt-5">Something went wrong</h4>
+                              </div>
+                            </Col>
+                          </Row>
+                        </Container>
+                      </div>
+
+                    }
+                    {
+                      data &&
+                      <PaginationProvider
+                        pagination={paginationFactory(pageOptions)}
+                        keyField={"id"}
+                        columns={userColumns}
+                        data={data.users}
+                      >
+                        {({ paginationProps, paginationTableProps }) => {
+                          return (
+                            <ToolkitProvider
+                              keyField={"id"}
+                              data={data.users}
+                              columns={userColumns}
+                              bootstrap4
+                              search
+                            >
+                              {toolkitProps => (
+                                <React.Fragment>
+                                  <Row className="mb-2">
+                                    <Col sm="4">
+                                      <div className="search-box ms-2 mb-2 d-inline-block">
+                                        <div className="position-relative">
+                                          <SearchBar {...toolkitProps.searchProps} />
+                                          <i className="bx bx-search-alt search-icon" />
+                                        </div>
+                                      </div>
+                                    </Col>
+                                    <Col sm="8">
+                                      <div className="text-sm-end">
+                                        <Button
+                                          color="primary"
+                                          className="font-16 btn-block btn btn-primary"
+                                          onClick={handleAddUser}
+                                        >
+                                          <i className="mdi mdi-plus-circle-outline me-1" />
+                                          Add new user
+                                        </Button>
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                  <Row>
+                                    <Col xl="12">
+                                      <div className="table-responsive">
+                                        <BootstrapTable
+                                          keyField={"id"}
+                                          {...toolkitProps.baseProps}
+                                          {...paginationTableProps}
+                                          defaultSorted={defaultSorted}
+                                          classes={
+                                            "table align-middle table-nowrap table-hover"
+                                          }
+                                          bordered={false}
+                                          striped={false}
+                                          responsive
+                                          // ref={node}
+                                        />
+
+                                        <Modal isOpen={modal} toggle={toggle}>
+                                          <ModalHeader toggle={toggle} tag="h4">
+                                            {!!isEdit ? "Edit User" : "Add User"}
+                                          </ModalHeader>
+                                          <ModalBody>
+                                            <Form
+                                              onSubmit={(e) => {
+                                                e.preventDefault();
+                                                validation.handleSubmit();
+                                                return false;
+                                              }}
+                                            >
+                                              <Row form>
+                                                <Col xs={12}>
+                                                  <div className="mb-3">
+                                                    <Label className="form-label">Full Name</Label>
+                                                    <Input
+                                                      name="full_name"
+                                                      type="text"
+                                                      onChange={validation.handleChange}
+                                                      onBlur={validation.handleBlur}
+                                                      value={validation.values.full_name || ""}
+                                                      invalid={
+                                                        validation.touched.full_name && validation.errors.full_name ? true : false
+                                                      }
+                                                    />
+                                                    {validation.touched.full_name && validation.errors.full_name ? (
+                                                      <FormFeedback type="invalid">{validation.errors.full_name}</FormFeedback>
+                                                    ) : null}
+                                                  </div>
+                                                  <div className="mb-3">
+                                                    <Label className="form-label">Email</Label>
+                                                    <Input
+                                                      name="email"
+                                                      type="text"
+                                                      onChange={validation.handleChange}
+                                                      onBlur={validation.handleBlur}
+                                                      value={validation.values.email || ""}
+                                                      invalid={
+                                                        validation.touched.email && validation.errors.email ? true : false
+                                                      }
+                                                    />
+                                                    {validation.touched.email && validation.errors.email ? (
+                                                      <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
+                                                    ) : null}
+                                                  </div>
+                                                  <div className="mb-3">
+                                                    <label className="control-label">
+                                                      Cars
+                                                    </label>
+                                                    <Select
+                                                      value={validation.values.cars}
+                                                      isMulti={true}
+                                                      onChange={validation.handleChange}
+                                                      options={allCars}
+                                                      classNamePrefix="select2-selection"
+                                                    />
+                                                  </div>
+                                                  <div className="mb-3">
+                                                    <Label>Role</Label>
+                                                    <Select
+                                                      value={validation.values.cars}
+                                                      onChange={validation.handleChange}
+                                                      options={allRoles}
+                                                      classNamePrefix="select2-selection"
+                                                    />
+                                                  </div>
+                                                </Col>
+                                              </Row>
+                                              <Row>
+                                                <Col>
+                                                  <div className="text-end">
+                                                    <button
+                                                      type="submit"
+                                                      className="btn btn-success save-user"
+                                                    >
+                                                      Save
+                                                    </button>
+                                                  </div>
+                                                </Col>
+                                              </Row>
+                                            </Form>
+                                          </ModalBody>
+                                        </Modal>
+                                      </div>
+                                    </Col>
+                                  </Row>
+                                  <Row className="align-items-md-center mt-30">
+                                    <Col className="pagination pagination-rounded justify-content-end mb-2">
+                                      <PaginationListStandalone
+                                        {...paginationProps}
+                                      />
+                                    </Col>
+                                  </Row>
+                                </React.Fragment>
+                              )}
+                            </ToolkitProvider>
+                          );
+                        }}
+                      </PaginationProvider>
+                    }
                   </CardBody>
                 </Card>
               </Col>

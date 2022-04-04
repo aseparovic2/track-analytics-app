@@ -24,6 +24,8 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import BootstrapTable from "react-bootstrap-table-next";
+import {ALL_CARS} from "../../graphql/queries/cars"
+import {useQuery} from "@apollo/client"
 
 
 //Import Breadcrumb
@@ -59,6 +61,8 @@ const users = [
 
 const CarList = props => {
   const [contact, setContact] = useState();
+  const { loading, error, data } = useQuery(ALL_CARS);
+
   // validation
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
@@ -85,14 +89,16 @@ const CarList = props => {
   });
 
   const [userList, setUserList] = useState([]);
+  const [vehicles, setVehicles] = useState([])
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+
 
   const { SearchBar } = Search;
   const sizePerPage = 10;
   const pageOptions = {
     sizePerPage: sizePerPage,
-    totalSize: users.length, // replace later with size(users),
+    totalSize: vehicles.length, // replace later with size(users),
     custom: true,
   };
   const defaultSorted = [
@@ -105,32 +111,70 @@ const CarList = props => {
   const contactListColumns = [
     {
       text: "ID",
-      dataField: "id",
+      dataField: "_id",
     },
     {
-      text: "VIN",
-      dataField: "vin",
+      text: "Model",
+      dataField: "model",
       sort: true,
     },
     {
-      text: "Name",
-      dataField: "name",
+      text: "Body",
+      dataField: "body",
+      sort: true,
+    },
+    {
+      text: "Color",
+      dataField: "color",
+      sort: true,
+    },
+    {
+      text: "Battery",
+      dataField: "battery",
+      sort: true,
+    },
+    {
+      text: "Licence",
+      dataField: "licence",
+      sort: true,
+    },
+    {
+      text: "Power",
+      dataField: "power",
+      sort: true,
+    },
+    {
+      text: "Range",
+      dataField: "range",
+      sort: true,
+    },
+    {
+      text: "Torque",
+      dataField: "torque",
+      sort: true,
+    },
+    {
+      text: "Transmission",
+      dataField: "transmission",
+      sort: true,
+    },
+    {
+      text: "Owner ID",
+      dataField: "user_id",
       sort: true,
       // eslint-disable-next-line react/display-name
-      formatter: (cellContent, user) => (
-        <>
-          <h5 className="font-size-14 mb-1">
-            <Link to="#" className="text-dark">
-              {user.name}
-            </Link>
-          </h5>
-        </>
-      ),
-    },
-    {
-      dataField: "description",
-      text: "Description",
-      sort: true,
+      formatter: (cellContent, user) => {
+        console.log(user)
+        return (
+          <>
+            <h5 className="font-size-14 mb-1">
+              <Link to="#" className="text-dark">
+                {user?.user_id?._id}
+              </Link>
+            </h5>
+          </>
+        )
+      },
     },
     {
       dataField: "menu",
@@ -158,6 +202,13 @@ const CarList = props => {
       ),
     },
   ];
+
+  useEffect(() => {
+    if (data?.cars !== undefined) {
+      console.log(data?.cars)
+      setVehicles(data.cars)
+    }
+  }, [data])
 
 
   const toggle = () => {
@@ -229,13 +280,13 @@ const CarList = props => {
                     pagination={paginationFactory(pageOptions)}
                     keyField={keyField}
                     columns={contactListColumns}
-                    data={users}
+                    data={vehicles}
                   >
                     {({ paginationProps, paginationTableProps }) => {
                       return (
                         <ToolkitProvider
                           keyField={keyField}
-                          data={users}
+                          data={vehicles}
                           columns={contactListColumns}
                           bootstrap4
                           search
