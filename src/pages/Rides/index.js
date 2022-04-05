@@ -24,57 +24,16 @@ import Spinearea from "../../components/spline-area"
 import Apaexlinecolumn from "../../components/apex"
 import SimpleMap from "../../components/simple-map"
 import maintanence from "../../assets/images/interior.jpg"
-import { useLazyQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {TELEMETRY_BY_RANGE} from "../../graphql/queries/telemetry"
-
-
-const users = [
-  {
-    id: 1,
-    name: 'Ride Grobnik 132252',
-
-  },
-  {
-    id: 2,
-    name: 'Dubrovnik tk8',
-
-  },
-  {
-    id: 2,
-    name: 'Zagreb Airport 558g',
-
-  },
-  {
-    id: 2,
-    name: 'Zadar 4959',
-
-  },{
-    id: 2,
-    name: 'Grobnik 667767',
-
-  },
-  {
-    id: 2,
-    name: 'Gorica jgjt858',
-
-  }
-]
-
-const optionGroup = [
-  {
-    label: "CARS",
-    options: [
-      { label: "Concept One", value: 1 },
-      { label: "Concept Two", value: 2 },
-      { label: "Nevera", value: 3 }
-    ]
-  }
-];
+import { ALL_CARS } from "../../graphql/queries/cars"
+import TestTable from "../../components/TestTable"
+import DataTable from "../../components/Common/DataTable/DataTable"
+import { orgChartData } from "../../components/Company/fakeData"
+import { removeBodyCss } from "../../helpers/removeBodyCss"
 
 
 
-
-//const db = getFirestore(app);
 
 const Rides = () => {
   const [isDataFetched, setIsDataFetched] = useState(false)
@@ -82,26 +41,30 @@ const Rides = () => {
   const [testData, setTestData] = useState([])
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
+  const [expand, setExpanded] = useState({})
 
-  // variables: {
-  //   start_date: "2021-01-14T18:18:04.200+01:00",
-  //     end_date: "2021-01-14T18:18:06.100+01:00"
-  // }
+  const [dates, setDates] = useState({
+    start_date: "",
+    end_date: ""
+  })
+  const {  data: carData } = useQuery(ALL_CARS);
+
 
   const [getDataByRange, { called, loading, data = [] }] = useLazyQuery(
     TELEMETRY_BY_RANGE,
-    {
-      variables: {
-        start_date: "2021-01-14T18:18:04.200+01:00",
-        end_date: "2021-01-14T18:18:06.100+01:00"
-      } }
   );
 
+  const fakeData = [
+  {
+    time : '20/01/2022'
+  },
+    {
+      time : '20/02/2022'
+    }
+  ]
 
-  // useEffect(() => {
-  //   console.log(data)
-  //   setTestData(data?.telemetry_data)
-  // }, data)
+
+
 
 
 
@@ -127,52 +90,166 @@ const Rides = () => {
     { text: '25', value: 25 },
     { text: 'All', value: (data)?.telemetry_data?.length }];
 
-  const productInfo = (cell, row, rowIndex, formatExtraData) => {
-    console.log(cell);
-    for (var key in cell) {
-      if (cell.hasOwnProperty(key)) {
-        console.log(key + " -> " + cell[key]);
-        //return key
-      }
-    }
 
-  };
 
 
 
   const onDataFilter = () => {
-    setStartDate('2021-01-14T18:18:04.200+01:00')
-    setEndDate('2021-01-14T18:18:06.100+01:00')
-    getDataByRange()
+
+    getDataByRange().then(res => {
+      console.log(res.data)
+    })
     //setTestData(data)
     setIsDataFetched(true)
 
   }
   const handleMulti = (selectedMulti) => {
+    console.log(selectedMulti)
     setselectedMulti(selectedMulti);
   }
   const onPickerChange = (selectedDates,dateStr,instance) => {
-    console.log(selectedDates,dateStr,instance)
     //selectedDates.length === 2
   }
 
-  const columns = [{
-    dataField: 'id',
-    text: 'Id',
-    sort: true,
-  }, {
-    dataField: 'time',
-    text: 'Time',
-    sort: true
-  }, {
-    dataField: 'vehicleStats',
-    text: 'Statistic',
-    formatter: productInfo
-  }, {
-    dataField: 'office',
-    text: 'Value',
-    sort: true
-  }];
+  const columns = [
+    {
+      dataField: "car",
+      text: "Car Info",
+      // eslint-disable-next-line react/display-name
+      formatter: (cellContent, user) => {
+        return (
+          <>
+            <h5 className="font-size-14 mb-1"> {cellContent.model} {cellContent.licence}</h5>
+          </>
+        )
+      }
+    },
+    {
+      dataField: "user_id",
+      text: "Owner ID",
+      // eslint-disable-next-line react/display-name
+      formatter: (cellContent, user) => {
+        return (
+          <>
+            <h5 className="font-size-14 mb-1"> {cellContent._id}</h5>
+          </>
+        )
+      }
+    },
+    {
+    dataField: "time",
+    text: "Time",
+  },
+  ]
+
+
+  const expandRow = {
+    // eslint-disable-next-line react/display-name
+    renderer: row => {
+      const sensorData = []
+      const arrayOfObj = Object.entries(row.vehicleStats).map((e) => ( { [e[0]]: e[1] } ));
+      arrayOfObj.map((el) => {
+        if (el.mean_HPI_FL_inverter_temp !== undefined) {
+          let newObj = {
+            id:el.mean_HPI_FL_inverter_temp.__typename,
+            name: 'FL Inverter Temperature',
+            value1: el.mean_HPI_FL_inverter_temp.HPI_temp_IGBT1,
+            value2: el.mean_HPI_FL_inverter_temp.HPI_temp_IGBT2,
+            value3: el.mean_HPI_FL_inverter_temp.HPI_temp_IGBT3
+          }
+          sensorData.push(newObj)
+        } else if (el.mean_HPI_FR_inverter_temp !== undefined) {
+          let newObj = {
+            id:el.mean_HPI_FR_inverter_temp.__typename,
+            name: 'FR Inverter Temperature',
+            value1: el.mean_HPI_FR_inverter_temp.HPI_temp_IGBT1,
+            value2: el.mean_HPI_FR_inverter_temp.HPI_temp_IGBT2,
+            value3: el.mean_HPI_FR_inverter_temp.HPI_temp_IGBT3
+          }
+          sensorData.push(newObj)
+        } else if (el.mean_PDU_HV_battery_performance !== undefined) {
+          let voltage = {
+            id:el.mean_PDU_HV_battery_performance.__typename,
+            name: 'Battery Performance - Voltage',
+            value1: el.mean_PDU_HV_battery_performance.PDU_HV_battery_voltage,
+          }
+          let current = {
+            id:el.mean_PDU_HV_battery_performance.__typename,
+            name: 'Battery Performance - Current',
+            value1: el.mean_PDU_HV_battery_performance.PDU_HV_battery_current,
+          }
+          sensorData.push(voltage)
+          sensorData.push(current)
+        }  else if (el.mean_PDU_HV_consumptions !== undefined) {
+          let voltage = {
+            id:el.mean_PDU_HV_consumptions.__typename,
+            name: 'Battery Consumption - Charged',
+            value1: el.mean_PDU_HV_consumptions.PDU_HV_batt_consumption_charged,
+          }
+          let current = {
+            id:el.mean_PDU_HV_consumptions.__typename,
+            name: 'Battery Consumption - Regen',
+            value1: el.mean_PDU_HV_consumptions.PDU_HV_batt_consumption_regen,
+          }
+          let total = {
+            id:el.mean_PDU_HV_consumptions.__typename,
+            name: 'Battery Consumption - Total',
+            value1: el.mean_PDU_HV_consumptions.PDU_HV_batt_consumption_total,
+          }
+          sensorData.push(voltage)
+          sensorData.push(current)
+          sensorData.push(total)
+        } else if (el.mean_SAFETY_PCU_vehicle_ST !== undefined) {
+          let voltage = {
+            id:el.mean_SAFETY_PCU_vehicle_ST.__typename,
+            name: 'Vehicle - Pedal',
+            value1: el.mean_SAFETY_PCU_vehicle_ST.PCU_accelerator_pedal,
+          }
+          let current = {
+            id:el.mean_SAFETY_PCU_vehicle_ST.__typename,
+            name: 'Vehicle - Milage',
+            value1: el.mean_SAFETY_PCU_vehicle_ST.PCU_vehicle_mileage,
+          }
+          let total = {
+            id:el.mean_SAFETY_PCU_vehicle_ST.__typename,
+            name: 'Vehicle - Speed',
+            value1: el.mean_SAFETY_PCU_vehicle_ST.PCU_vehicle_speed,
+          }
+          sensorData.push(voltage)
+          sensorData.push(current)
+          sensorData.push(total)
+        }
+      })
+      return (
+        <div className="table-responsive">
+          <table className="table-nowrap mb-0 table">
+            <thead>
+            <th>Sensor Name</th>
+            <th>Value1</th>
+            <th>Value2</th>
+            <th>Value3</th>
+            </thead>
+            <tbody>
+            {
+              sensorData.map(department => {
+                return (
+                  <tr
+                    key={department.id}>
+                    <td scope="row">{department.name}</td>
+                    <td scope="row">{department.value1}</td>
+                    <td scope="row">{department.value2}</td>
+                    <td scope="row">{department.value3}</td>
+                  </tr>
+                )
+              })
+            }
+            </tbody>
+          </table>
+        </div>
+      )
+    },
+    expanded: [1,2],
+  }
 
   return (
     <React.Fragment>
@@ -191,10 +268,12 @@ const Rides = () => {
                 <Select
                   value={selectedMulti}
                   isMulti={true}
-                  onChange={() => {
-                    handleMulti();
+                  getOptionValue={(option) => option.id}
+                  getOptionLabel={(option) => option.model +" "+ option.licence}
+                  onChange={(option) => {
+                    handleMulti(option);
                   }}
-                  options={optionGroup}
+                  options={carData?.cars}
                   classNamePrefix="select2-selection"
                 />
               </FormGroup>
@@ -275,113 +354,18 @@ const Rides = () => {
                       <CardBody>
                         <CardTitle className="h4">Sensor informations</CardTitle><br/>
 
-                        <ReactTable
-                          data={data?.telemetry_data}
-                          columns={[
-                            {
-                              expander: true,
-                              // eslint-disable-next-line react/display-name
-                              Expander: (row) => {
-                                //Identify the row depth and render expander only when it's 0
-                                //and not for the inner rows
-                                if (row.level === 0) {
-                                  return <ReactTable.defaultProps.ExpanderComponent {...row} />;
-                                }
-                                return null;
-                              }
-                            },
-                            {
-                              Header: "Time",
-                              accessor: "time"
-                            },
-                            {
-                              Header: "Stats",
-                              id: "vehicleStats",
-                              accessor: "vehicleStats"
-                            },
-                            {
-                              Header: "Age",
-                              accessor: "age"
-                            },
-                            {
-                              Header: "Visits",
-                              accessor: "visits"
-                            }
-                          ]}
-                          defaultPageSize={10}
-                          className="-striped -highlight"
-                        />
-
-                        {/*<PaginationProvider*/}
-                        {/*  pagination={paginationFactory(pageOptions)}*/}
-                        {/*  keyField='id'*/}
-                        {/*  columns={columns}*/}
-                        {/*  data={data?.telemetry_data}*/}
-                        {/*>*/}
-                        {/*  {({ paginationProps, paginationTableProps }) => (*/}
-                        {/*    <ToolkitProvider*/}
-                        {/*      keyField='id'*/}
-                        {/*      columns={columns}*/}
-                        {/*      data={data?.telemetry_data}*/}
-                        {/*      //search*/}
-                        {/*    >*/}
-                        {/*      {toolkitProps => (*/}
-                        {/*        <React.Fragment>*/}
-
-                        {/*          /!*<Row className="mb-2">*!/*/}
-                        {/*          /!*  <Col md="4">*!/*/}
-                        {/*          /!*    <div className="search-box me-2 mb-2 d-inline-block">*!/*/}
-                        {/*          /!*      <div className="position-relative">*!/*/}
-                        {/*          /!*        <SearchBar*!/*/}
-                        {/*          /!*          {...toolkitProps.searchProps}*!/*/}
-                        {/*          /!*        />*!/*/}
-                        {/*          /!*        <i className="bx bx-search-alt search-icon" />*!/*/}
-                        {/*          /!*      </div>*!/*/}
-                        {/*          /!*    </div>*!/*/}
-                        {/*          /!*  </Col>*!/*/}
-                        {/*          /!*</Row>*!/*/}
-
-                        {/*          <Row>*/}
-                        {/*            <Col xl="12">*/}
-                        {/*              <div className="table-responsive">*/}
-                        {/*                <BootstrapTable*/}
-                        {/*                  keyField={"id"}*/}
-                        {/*                  responsive*/}
-                        {/*                  bordered={false}*/}
-                        {/*                  striped={false}*/}
-                        {/*                  defaultSorted={defaultSorted}*/}
-                        {/*                  classes={*/}
-                        {/*                    "table align-middle table-nowrap"*/}
-                        {/*                  }*/}
-                        {/*                  headerWrapperClasses={"thead-light"}*/}
-                        {/*                  {...toolkitProps.baseProps}*/}
-                        {/*                  {...paginationTableProps}*/}
-                        {/*                />*/}
-
-                        {/*              </div>*/}
-                        {/*            </Col>*/}
-                        {/*          </Row>*/}
-
-                        {/*          <Row className="align-items-md-center mt-30">*/}
-                        {/*            <Col className="inner-custom-pagination d-flex">*/}
-                        {/*              <div className="d-inline">*/}
-                        {/*                <SizePerPageDropdownStandalone*/}
-                        {/*                  {...paginationProps}*/}
-                        {/*                />*/}
-                        {/*              </div>*/}
-                        {/*              <div className="text-md-right ms-auto">*/}
-                        {/*                <PaginationListStandalone*/}
-                        {/*                  {...paginationProps}*/}
-                        {/*                />*/}
-                        {/*              </div>*/}
-                        {/*            </Col>*/}
-                        {/*          </Row>*/}
-                        {/*        </React.Fragment>*/}
-                        {/*      )*/}
-                        {/*      }*/}
-                        {/*    </ToolkitProvider>*/}
-                        {/*  )*/}
-                        {/*  }</PaginationProvider>*/}
+                        <DataTable
+                          data={data?.telemetry_data !== undefined ? data.telemetry_data : []}
+                          columns={columns}
+                          onClick={() => {
+                            // setIsOrgChartEditing(false)
+                            // setOrgChartInitialValue({})
+                            // setOrgChartModal(!orgChartModal)
+                            // removeBodyCss()
+                          }}
+                          expandRow={expandRow}
+                          iconName="bx bx-user-plus"
+                          buttonTitle={'Add'}/>
 
                       </CardBody>
                     </Card>
@@ -391,8 +375,8 @@ const Rides = () => {
                   <Col lg={6}>
                     <Card>
                       <CardBody>
-                        <CardTitle className="mb-4"> Fuel efficiency</CardTitle>
-                        <Spinearea/>
+                        <CardTitle className="mb-4"> Battery Performance</CardTitle>
+                        <Spinearea data={data}/>
                       </CardBody>
                     </Card>
                   </Col>

@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import React, { useEffect, useRef } from "react"
+import React, { useEffect, useRef, useState } from "react"
 
 // //Import Scrollbar
 import SimpleBar from "simplebar-react"
@@ -14,6 +14,7 @@ import { withTranslation } from "react-i18next"
 
 const SidebarContent = props => {
   const ref = useRef();
+  const [user, setUser] = useState({})
   // Use ComponentDidMount and ComponentDidUpdate method symultaniously
   useEffect(() => {
     const pathName = props.location.pathname
@@ -39,6 +40,12 @@ const SidebarContent = props => {
   useEffect(() => {
     ref.current.recalculate()
   })
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem('authUser')))
+    console.log(JSON.parse(localStorage.getItem('authUser')))
+  }, [])
+
 
   function scrollElement(item) {
     if (item) {
@@ -105,25 +112,39 @@ const SidebarContent = props => {
                 <span>Telemetry data</span>
               </Link>
             </li>
-            <li>
-              <Link to="/vehicles" className=" ">
-                <i className="bx bxs-car"/>
-                <span>Vehicles</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/#" >
-                <i className="bx bx-user"/>
-                <span>Admin</span>
-              </Link>
-              <ul className="sub-menu" aria-expanded="false">
-                <li>
-                  <Link to="/users" className=" ">
-                    {props.t("Users")}
-                  </Link>
-                </li>
-              </ul>
-            </li>
+            {
+              user.role === "engineer" &&
+              <li>
+                <Link to="/vehicles" className=" ">
+                  <i className="bx bxs-car"/>
+                  <span>Vehicles</span>
+                </Link>
+              </li>
+            }
+            {
+              user.role === "admin" &&
+                <>
+              <li>
+                <Link to="/vehicles" className=" ">
+                  <i className="bx bxs-car"/>
+                  <span>Vehicles</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/#" >
+                  <i className="bx bx-user"/>
+                  <span>Admin</span>
+                </Link>
+                <ul className="sub-menu" aria-expanded="false">
+                  <li>
+                    <Link to="/users" className=" ">
+                      {props.t("Users")}
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+                </>
+            }
           </ul>
         </div>
       </SimpleBar>

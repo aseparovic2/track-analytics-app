@@ -12,7 +12,7 @@ const DataTable = (props) => {
 
   const pageOptions = {
     sizePerPage: 10,
-    totalSize: props.data.length, // replace later with size(customers),
+    totalSize: props.data?.length, // replace later with size(customers),
     custom: true
   }
 
@@ -20,7 +20,6 @@ const DataTable = (props) => {
     dataField: "id",
     order: "asc"
   }]
-  const { SearchBar } = Search
 
   return (
     <PaginationProvider
@@ -31,23 +30,14 @@ const DataTable = (props) => {
     >
       {({ paginationProps, paginationTableProps }) => (
         <ToolkitProvider
-          keyField="id"
+          keyField="_id"
           columns={props.columns}
           data={props.data}
-          search
         >
           {toolkitProps => (
             <React.Fragment>
               <Row className="mb-2">
                 <Col md="4">
-                  <div className="search-box me-2 mb-2 d-inline-block">
-                    <div className="position-relative">
-                      <SearchBar
-                        {...toolkitProps.searchProps}
-                      />
-                      <i className="bx bx-search-alt search-icon" />
-                    </div>
-                  </div>
                 </Col>
                 <Col md="4">
                   <div className="search-box me-2 mb-2 d-inline-block">
@@ -71,7 +61,7 @@ const DataTable = (props) => {
                       bordered={false}
                       striped={false}
                       expandRow={props.expandRow}
-                      defaultSorted={defaultSorted}
+                     // defaultSorted={defaultSorted}
                       classes={
                         "table align-middle table-nowrap"
                       }

@@ -8,7 +8,7 @@ import { withTranslation } from "react-i18next";
 import SidebarContent from "./SidebarContent";
 
 import { Link } from "react-router-dom";
-import smallLogo from 'assets/images/rimac-logo.png'
+import smallLogo from 'assets/images/rimac-avatar-removebg-preview.png'
 
 
 const Sidebar = props => {

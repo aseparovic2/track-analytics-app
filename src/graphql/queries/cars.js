@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 export const ALL_CARS = gql`
   query {
-    cars (query: {}) {
+    cars (query: {}, limit: 3000) {
         _id
         battery
         body

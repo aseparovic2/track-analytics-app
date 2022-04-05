@@ -13,7 +13,7 @@ import { withTranslation } from "react-i18next"
 import { withRouter, useHistory } from "react-router-dom"
 
 // users
-import user1 from "../../../assets/images/users/avatar-1.jpg"
+import user1 from "../../../assets/images/rimac-avatar.jpg"
 import { getAuth } from "firebase/auth"
 
 const ProfileMenu = props => {
@@ -21,25 +21,11 @@ const ProfileMenu = props => {
   const [menu, setMenu] = useState(false)
   const [username, setusername] = useState("User")
   const history = useHistory();
-  const authentication = getAuth();
-
-  useEffect(() => {
-   setusername(authentication?.currentUser?.email)
-  }, [authentication])
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {
-      if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
         const obj = JSON.parse(localStorage.getItem("authUser"))
-        console.log(obj)
-        setusername(obj.displayName)
-      } else if (
-        process.env.REACT_APP_DEFAULTAUTH === "fake" ||
-        process.env.REACT_APP_DEFAULTAUTH === "jwt"
-      ) {
-        const obj = JSON.parse(localStorage.getItem("authUser"))
-        setusername(obj.username)
-      }
+        setusername(obj.email)
     }
   }, [])
 
