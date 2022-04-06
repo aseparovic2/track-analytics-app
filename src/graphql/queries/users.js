@@ -18,7 +18,6 @@ query authUser ($email: String!, $password: String!){
     }) {
         _id,
         email,
-        password,
         role
     }
 }

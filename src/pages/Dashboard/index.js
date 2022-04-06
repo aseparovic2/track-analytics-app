@@ -93,6 +93,7 @@ const { SearchBar } = Search;
 
 const Dashboard = () => {
   const [data,setData] = useState([])
+  const [user,setUser] = useState([])
   const fetchData =  () => {
     app.collection('telemetry_data').get().then((querySnapshot) => {
       querySnapshot.forEach(el => {
@@ -103,6 +104,8 @@ const Dashboard = () => {
   }
   useEffect(() => {
     fetchData()
+    const obj = JSON.parse(localStorage.getItem("authUser"))
+    setUser(obj)
   },[])
   useEffect(() => {
     console.log(data)
@@ -131,8 +134,8 @@ const Dashboard = () => {
                           <div className="flex-grow-1 align-self-center">
                             <div className="text-muted">
                               <p className="mb-2">Welcome to Rimac Telemetry</p>
-                              <h5 className="mb-1">Antonio Separovic</h5>
-                              <p className="mb-0">Rimac Nevera Owner</p>
+                              <h5 className="mb-1">{user.email}</h5>
+                              <p className="mb-0">Role: {user.role}</p>
                             </div>
                           </div>
                         </div>

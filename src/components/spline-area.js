@@ -13,7 +13,7 @@ const Spinearea = (props) => {
       name: 'Ride',
       data: bateryData
     }
-    props.data.telemetry_data.forEach(el => {
+    props.data.forEach(el => {
       bateryData.push(el.vehicleStats.mean_PDU_HV_battery_performance.PDU_HV_battery_current)
       timeData.push(el.time)
     })
@@ -23,7 +23,7 @@ const Spinearea = (props) => {
     setCategories(timeData)
     console.log(timeData, newSeries)
   }, [])
-  
+
 
   const options = {
     dataLabels: {

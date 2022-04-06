@@ -25,23 +25,26 @@ import Apaexlinecolumn from "../../components/apex"
 import SimpleMap from "../../components/simple-map"
 import maintanence from "../../assets/images/interior.jpg"
 import { useLazyQuery, useQuery } from "@apollo/client";
-import {TELEMETRY_BY_RANGE} from "../../graphql/queries/telemetry"
+import { TELEMETRY_BY_CAR, TELEMETRY_BY_RANGE } from "../../graphql/queries/telemetry"
 import { ALL_CARS } from "../../graphql/queries/cars"
 import TestTable from "../../components/TestTable"
 import DataTable from "../../components/Common/DataTable/DataTable"
 import { orgChartData } from "../../components/Company/fakeData"
 import { removeBodyCss } from "../../helpers/removeBodyCss"
+import { AUTH_USER } from "../../graphql/queries/users"
 
 
 
 
 const Rides = () => {
   const [isDataFetched, setIsDataFetched] = useState(false)
-  const [selectedMulti, setselectedMulti] = useState(null);
+  const [selectedCar, setSelectedCar] = useState('')
   const [testData, setTestData] = useState([])
   const [startDate, setStartDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [expand, setExpanded] = useState({})
+  const [generalData, setGeneralData] = useState([])
+  const [globalLoading, setGlobalLoading] = useState(false)
 
   const [dates, setDates] = useState({
     start_date: "",
@@ -50,9 +53,19 @@ const Rides = () => {
   const {  data: carData } = useQuery(ALL_CARS);
 
 
-  const [getDataByRange, { called, loading, data = [] }] = useLazyQuery(
-    TELEMETRY_BY_RANGE,
+  const [getDataByRange, {  }] = useLazyQuery(
+    TELEMETRY_BY_RANGE, {
+      variables: {
+        startDate: startDate,
+        endDate: endDate
+      }
+    },
   );
+  const [getDataByCar, {  }] = useLazyQuery(TELEMETRY_BY_CAR, {
+    variables: {
+      carId: selectedCar
+    }
+  });
 
   const fakeData = [
   {
@@ -64,50 +77,36 @@ const Rides = () => {
   ]
 
 
+  const onDataFilter = async () => {
+    setGlobalLoading(true)
+    if (selectedCar !== '') {
+      await getDataByCar().then(res => {
+        console.log(res?.data?.telemetry_data)
+        setGeneralData(res?.data?.telemetry_data)
 
-
-
-
- // const { SearchBar } = Search;
-
-  const defaultSorted = [{
-    dataField: 'id',
-    order: 'asc'
-  }];
-
-  const pageOptions = {
-    sizePerPage: 10,
-    totalSize: data?.telemetry_data?.length, // replace later with size(customers),
-    custom: true,
-  }
-
-  // Custom Pagination Toggle
-  const sizePerPageList = [
-    { text: '5', value: 5 },
-    { text: '10', value: 10 },
-    { text: '15', value: 15 },
-    { text: '20', value: 20 },
-    { text: '25', value: 25 },
-    { text: 'All', value: (data)?.telemetry_data?.length }];
-
-
-
-
-
-  const onDataFilter = () => {
-
-    getDataByRange().then(res => {
-      console.log(res.data)
-    })
+      })
+    } else if (startDate !== '' && endDate !== '') {
+      await getDataByRange().then(res => {
+        console.log(res.data)
+        setGeneralData(res?.data?.telemetry_data)
+      })
+    }
     //setTestData(data)
     setIsDataFetched(true)
+    setGlobalLoading(false)
 
   }
-  const handleMulti = (selectedMulti) => {
-    console.log(selectedMulti)
-    setselectedMulti(selectedMulti);
+  const handleMulti = (option) => {
+    console.log(option._id)
+    setSelectedCar(option._id)
   }
   const onPickerChange = (selectedDates,dateStr,instance) => {
+    if(dateStr.includes('to')) {
+      console.log(dateStr.split('to'))
+      let days = dateStr.split('to')
+      setStartDate(days[0].replace(/\s/g, ''))
+      setEndDate(days[1].replace(/\s/g, ''))
+    }
     //selectedDates.length === 2
   }
 
@@ -266,12 +265,14 @@ const Rides = () => {
                   Select one or multiple cars
                 </label>
                 <Select
-                  value={selectedMulti}
-                  isMulti={true}
+                  value={carData?.cars.find((o) => {
+                    return o.value === selectedCar
+                  })}
+                  isMulti={false}
                   getOptionValue={(option) => option.id}
                   getOptionLabel={(option) => option.model +" "+ option.licence}
                   onChange={(option) => {
-                    handleMulti(option);
+                    setSelectedCar(option._id)
                   }}
                   options={carData?.cars}
                   classNamePrefix="select2-selection"
@@ -288,7 +289,7 @@ const Rides = () => {
                     options={{
                       mode: "range",
                       enableTime: true,
-                      dateFormat: "Y-m-D H:i"
+                      dateFormat: "Y-m-dTH:i"
                     }}
                     onChange={onPickerChange}
                   />
@@ -312,7 +313,7 @@ const Rides = () => {
             </Col>
           </Row>
           {
-            isDataFetched && called &&  data.length !== 0 &&
+            isDataFetched && !globalLoading &&  generalData?.length !== 0 &&
               <>
                 <Row>
                   <Col lg={12}>
@@ -355,7 +356,7 @@ const Rides = () => {
                         <CardTitle className="h4">Sensor informations</CardTitle><br/>
 
                         <DataTable
-                          data={data?.telemetry_data !== undefined ? data.telemetry_data : []}
+                          data={generalData}
                           columns={columns}
                           onClick={() => {
                             // setIsOrgChartEditing(false)
@@ -376,7 +377,7 @@ const Rides = () => {
                     <Card>
                       <CardBody>
                         <CardTitle className="mb-4"> Battery Performance</CardTitle>
-                        <Spinearea data={data}/>
+                        <Spinearea data={generalData}/>
                       </CardBody>
                     </Card>
                   </Col>
@@ -406,7 +407,7 @@ const Rides = () => {
           }
 
           {
-            !isDataFetched &&
+            generalData?.length === 0 && !globalLoading &&
             <div className="my-5 pt-sm-5">
               <Container>
                 <Row>
@@ -434,7 +435,7 @@ const Rides = () => {
             </div>
           }
           {
-            called && loading &&
+            globalLoading &&
             <div className="my-5 pt-sm-5">
               <Container>
                 <Row>

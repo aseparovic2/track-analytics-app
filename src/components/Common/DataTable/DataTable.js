@@ -36,22 +36,6 @@ const DataTable = (props) => {
         >
           {toolkitProps => (
             <React.Fragment>
-              <Row className="mb-2">
-                <Col md="4">
-                </Col>
-                <Col md="4">
-                  <div className="search-box me-2 mb-2 d-inline-block">
-                    <div className="position-relative">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary"
-                        style={{ margin: 5 }}
-                        onClick={props.onClick}><i className={props.iconName} />{props.buttonTitle}
-                      </button>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
               <Row>
                 <Col xl="12">
                   <div className="table-responsive">
