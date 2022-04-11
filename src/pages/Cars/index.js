@@ -24,43 +24,20 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import BootstrapTable from "react-bootstrap-table-next";
-import {ALL_CARS} from "../../graphql/queries/cars"
-import {useQuery} from "@apollo/client"
+import { ADD_CAR, ALL_CARS, DELETE_CAR } from "../../graphql/queries/cars"
+import { useMutation, useQuery } from "@apollo/client"
+import Select from "react-select";
 
 
 //Import Breadcrumb
 import Breadcrumbs from "components/Common/Breadcrumb";
+import { fireAlert } from "../../components/Common/Alert"
+import { ALL_USERS } from "../../graphql/queries/users"
 
-
-const users = [
-  {
-    id: '44789',
-    vin: 'WLEJFJFIRIJOJEOIR545HKJH',
-    name: 'Rimac Concept_One',
-    description: 'Concept one prototype vehicle 1'
-  },
-  {
-    id: '66767',
-    name: 'Rimac Concept_One',
-    vin: 'WLEJFJFIRIJOJEOIR545HKJH',
-    description: 'Concept one prototype vehicle 2'
-  },
-  {
-    id: '22234',
-    vin: 'WLEJFJFIRIJOJEOIR545HKJH',
-    name: 'Rimac Concept_Two',
-    description: 'Concept one prototype vehicle 1'
-  },
-  {
-    id: '1235c5d',
-    vin: 'WLEJFJFIRIJOJEOIR545HKJH',
-    name: 'Rimac Nevera',
-    description: 'Concept one prototype vehicle 1'
-  }
-]
 
 const CarList = props => {
-  const [contact, setContact] = useState();
+  const [contact, setContact] = useState({});
+  const [car, setCar] = useState({});
   const { loading, error, data } = useQuery(ALL_CARS);
 
   // validation
@@ -68,21 +45,41 @@ const CarList = props => {
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
 
-    initialValues: {
-      name: (contact && contact.name) || '',
-      description: (contact && contact.description) || '',
-      vin: (contact && contact.vin)  ||  '',
-    },
+    initialValues: contact,
     validationSchema: Yup.object({
-      name: Yup.string().required("Please Enter Your Name"),
-      description: Yup.string().required("Please Enter Vehicle Description"),
-      vin: Yup.array().required("Please Enter Vehicle VIN nu,ber"),
+      //_id: Yup.string().required("ID is required"),
+     // description: Yup.string().required("Please Enter Vehicle Description"),
+      //vin: Yup.array().required("Please Enter Vehicle VIN nu,ber"),
     }),
     onSubmit: (values) => {
+      console.log('aleeeee' , values)
       if (isEdit) {
         //edit car
+
       } else {
         //add new car
+
+        setCar({
+           battery: "999kWh",
+           body: values.body,
+           color: "PURPLE",
+           licence: values.licence,
+           model:values.model,
+           power: values.power,
+           range: "999 km",
+           torque: values.torque,
+           transmission: "SINGLE-SPEED GEARBOXES",
+                  user_id: {
+                      link: "6247454e1f27938b40b66efb"
+                  }
+        })
+        addCar().then(res => {
+          fireAlert("Add Vehicle","Vehicle added successfully","success")
+          console.log(res.data.insertOneCar)
+          let arr = [...vehicles]
+          arr.push(res.data.insertOneCar)
+          setVehicles(arr)
+        })
       }
       toggle();
     },
@@ -90,8 +87,25 @@ const CarList = props => {
 
   const [userList, setUserList] = useState([]);
   const [vehicles, setVehicles] = useState([])
+  const [id, setId] = useState("")
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+
+  const [deleteCar, {}] = useMutation(DELETE_CAR, {
+    variables: {
+      carId: id
+    }});
+
+  const [addCar] = useMutation(ADD_CAR, {
+    variables: {
+      carData: car
+    }});
+
+  const { data: usersData} = useQuery(ALL_USERS);
+
+  useEffect(() => {
+     console.log(usersData)
+  }, [usersData])
 
 
   const { SearchBar } = Search;
@@ -107,6 +121,7 @@ const CarList = props => {
       order: "desc", // desc or asc
     },
   ];
+
 
   const contactListColumns = [
     {
@@ -127,11 +142,13 @@ const CarList = props => {
       text: "Color",
       dataField: "color",
       sort: true,
+      hidden: true,
     },
     {
       text: "Battery",
       dataField: "battery",
       sort: true,
+      hidden: true,
     },
     {
       text: "Licence",
@@ -147,6 +164,7 @@ const CarList = props => {
       text: "Range",
       dataField: "range",
       sort: true,
+      hidden: true,
     },
     {
       text: "Torque",
@@ -157,10 +175,11 @@ const CarList = props => {
       text: "Transmission",
       dataField: "transmission",
       sort: true,
+      hidden: true,
     },
     {
       text: "Owner ID",
-      dataField: "user_id",
+      dataField: "email",
       sort: true,
       // eslint-disable-next-line react/display-name
       formatter: (cellContent, user) => {
@@ -169,7 +188,7 @@ const CarList = props => {
           <>
             <h5 className="font-size-14 mb-1">
               <Link to="#" className="text-dark">
-                {user?.user_id?._id}
+                {user?.user_id?.email}
               </Link>
             </h5>
           </>
@@ -219,10 +238,13 @@ const CarList = props => {
     const user = arg;
     console.log(user)
     setContact({
-      id: user.id,
-      name: user.name,
-      description: user.description,
-      vin: user.vin,
+      _id: user._id,
+      model: user.model,
+      body: user.body,
+      licence: user.licence,
+      power: user.power,
+      torque: user.torque,
+      ownerEmail: user.user_id.email,
     });
     setIsEdit(true);
 
@@ -245,8 +267,18 @@ const CarList = props => {
   //delete customer
   const [deleteModal, setDeleteModal] = useState(false);
 
-  const onClickDelete = (users) => {
-    setContact(users);
+  const onClickDelete = async (users) => {
+    await setId(users._id);
+    deleteCar().then((res) => {
+      let newState = [...vehicles]
+      let index = newState.findIndex((i) => {
+        return i._id === res.data.deleteOneCar._id
+      })
+      newState.splice(index, 1)
+      setVehicles(newState)
+      fireAlert("Delete Vehicle","Vehicle deleted successfully","success")
+    })
+
     setDeleteModal(true);
   };
 
@@ -341,57 +373,72 @@ const CarList = props => {
                                           onSubmit={(e) => {
                                             e.preventDefault();
                                             validation.handleSubmit();
-                                            return false;
                                           }}
                                         >
                                           <Row form>
                                             <Col xs={12}>
                                               <div className="mb-3">
-                                                <Label className="form-label">VIN</Label>
+                                                <Label className="form-label">Owner</Label>
+                                                 <Select
+                                                   value={usersData?.users.find((o) => {
+                                                     return o._id === validation.values._id
+                                                   })}
+                                                   isMulti={false}
+                                                   getOptionValue={(option) => option._id}
+                                                   getOptionLabel={(option) => option.email}
+                                                   onChange={validation.handleChange}
+                                                   options={usersData?.users}
+
+                                                 />
+                                              </div>
+                                            </Col>
+                                            <Col xs={12}>
+                                              <div className="mb-3">
+                                                <Label className="form-label">Model</Label>
                                                 <Input
-                                                  name="vin"
+                                                  name="model"
                                                   type="text"
                                                   onChange={validation.handleChange}
                                                   onBlur={validation.handleBlur}
-                                                  value={validation.values.vin || ""}
+                                                  value={validation.values.model || ""}
                                                   invalid={
-                                                    validation.touched.vin && validation.errors.vin ? true : false
+                                                    !!(validation.touched.model && validation.errors.model)
                                                   }
                                                 />
-                                                {validation.touched.vin && validation.errors.vin ? (
-                                                  <FormFeedback type="invalid">{validation.errors.vin}</FormFeedback>
+                                                {validation.touched.model && validation.errors.model ? (
+                                                  <FormFeedback type="invalid">{validation.errors.model}</FormFeedback>
                                                 ) : null}
                                               </div>
                                               <div className="mb-3">
-                                                <Label className="form-label">Name</Label>
+                                                <Label className="form-label">Body</Label>
                                                 <Input
-                                                  name="name"
+                                                  name="body"
                                                   type="text"
                                                   onChange={validation.handleChange}
                                                   onBlur={validation.handleBlur}
-                                                  value={validation.values.name || ""}
+                                                  value={validation.values.body || ""}
                                                   invalid={
-                                                    validation.touched.name && validation.errors.name ? true : false
+                                                    !!(validation.touched.body && validation.errors.body)
                                                   }
                                                 />
-                                                {validation.touched.name && validation.errors.name ? (
-                                                  <FormFeedback type="invalid">{validation.errors.name}</FormFeedback>
+                                                {validation.touched.body && validation.errors.body ? (
+                                                  <FormFeedback type="invalid">{validation.errors.body}</FormFeedback>
                                                 ) : null}
                                               </div>
                                               <div className="mb-3">
-                                                <Label className="form-label">Description</Label>
+                                                <Label className="form-label">Licence</Label>
                                                 <Input
-                                                  name="description"
-                                                  label="Description"
+                                                  name="licence"
+                                                  label="Licence"
                                                   type="text"
                                                   onChange={validation.handleChange}
                                                   onBlur={validation.handleBlur}
-                                                  value={validation.values.description || ""}
+                                                  value={validation.values.licence || ""}
                                                   invalid={
-                                                    validation.touched.description && validation.errors.description ? true : false
+                                                    !!(validation.touched.licence && validation.errors.licence)
                                                   }
                                                 />
-                                                {validation.touched.description && validation.errors.description ? (
+                                                {validation.touched.licence && validation.errors.licence ? (
                                                   <FormFeedback type="invalid">{validation.errors.description}</FormFeedback>
                                                 ) : null}
                                               </div>
@@ -400,12 +447,7 @@ const CarList = props => {
                                           <Row>
                                             <Col>
                                               <div className="text-end">
-                                                <button
-                                                  type="submit"
-                                                  className="btn btn-success save-user"
-                                                >
-                                                  Save
-                                                </button>
+                                               <Button color={"primary"} type={"submit"}>Save</Button>
                                               </div>
                                             </Col>
                                           </Row>
