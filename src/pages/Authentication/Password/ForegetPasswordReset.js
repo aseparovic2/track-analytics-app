@@ -37,7 +37,7 @@ const ForgetPasswordReset = () => {
   return (
     <React.Fragment>
       <MetaTags>
-        <title>Forgot Password | iNSPECTOR</title>
+        <title>Forgot Password | Rimac Telemetry</title>
       </MetaTags>
       <div className="home-btn d-none d-sm-block">
         <Link to="/" className="text-dark">

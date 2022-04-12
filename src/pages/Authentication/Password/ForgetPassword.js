@@ -42,7 +42,7 @@ const ForgetPasswordPage = props => {
     <React.Fragment>
       <MetaTags>
         <title>
-          Forget Password | iNSPECTOR
+          Forget Password | Rimac Telemetry
         </title>
       </MetaTags>
       <div className="home-btn d-none d-sm-block">

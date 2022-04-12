@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useReducer } from "react"
 import MetaTags from "react-meta-tags";
 import { withRouter, Link } from "react-router-dom";
 import {
@@ -24,7 +24,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit";
 import BootstrapTable from "react-bootstrap-table-next";
-import { ADD_CAR, ALL_CARS, DELETE_CAR } from "../../graphql/queries/cars"
+import { ADD_CAR, ALL_CARS, DELETE_CAR, UPDATE_CAR } from "../../graphql/queries/cars"
 import { useMutation, useQuery } from "@apollo/client"
 import Select from "react-select";
 
@@ -36,60 +36,20 @@ import { ALL_USERS } from "../../graphql/queries/users"
 
 
 const CarList = props => {
-  const [contact, setContact] = useState({});
-  const [car, setCar] = useState({});
-  const { loading, error, data } = useQuery(ALL_CARS);
-
-  // validation
-  const validation = useFormik({
-    // enableReinitialize : use this flag when initial values needs to be changed
-    enableReinitialize: true,
-
-    initialValues: contact,
-    validationSchema: Yup.object({
-      //_id: Yup.string().required("ID is required"),
-     // description: Yup.string().required("Please Enter Vehicle Description"),
-      //vin: Yup.array().required("Please Enter Vehicle VIN nu,ber"),
-    }),
-    onSubmit: (values) => {
-      console.log('aleeeee' , values)
-      if (isEdit) {
-        //edit car
-
-      } else {
-        //add new car
-
-        setCar({
-           battery: "999kWh",
-           body: values.body,
-           color: "PURPLE",
-           licence: values.licence,
-           model:values.model,
-           power: values.power,
-           range: "999 km",
-           torque: values.torque,
-           transmission: "SINGLE-SPEED GEARBOXES",
-                  user_id: {
-                      link: "6247454e1f27938b40b66efb"
-                  }
-        })
-        addCar().then(res => {
-          fireAlert("Add Vehicle","Vehicle added successfully","success")
-          console.log(res.data.insertOneCar)
-          let arr = [...vehicles]
-          arr.push(res.data.insertOneCar)
-          setVehicles(arr)
-        })
-      }
-      toggle();
-    },
+  const [contact, setContact] = useState({
+    model: '',
+    body: '',
+    licence: ''
   });
-
+  const [car, setCar] = useState({});
+  const [reducerValue, forceUpdate] = useReducer(x => x+1 , 0)
+  const { loading, error, data , refetch} = useQuery(ALL_CARS);
   const [userList, setUserList] = useState([]);
   const [vehicles, setVehicles] = useState([])
   const [id, setId] = useState("")
   const [modal, setModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [ownerId, setOwnerId] = useState("")
 
   const [deleteCar, {}] = useMutation(DELETE_CAR, {
     variables: {
@@ -101,11 +61,62 @@ const CarList = props => {
       carData: car
     }});
 
+  const [updateCar] = useMutation(UPDATE_CAR, {
+    variables: {
+      carData: car,
+      carId: contact._id
+    }});
+
   const { data: usersData} = useQuery(ALL_USERS);
 
+
+
   useEffect(() => {
-     console.log(usersData)
-  }, [usersData])
+    refetch()
+  }, [reducerValue])
+
+
+  // validation
+  const validation = useFormik({
+    // enableReinitialize : use this flag when initial values needs to be changed
+    enableReinitialize: true,
+
+    initialValues: contact,
+    validationSchema: Yup.object({
+      model: Yup.string().required("Model is required"),
+      licence: Yup.string().required("Licence is required"),
+    }),
+    onSubmit: (values) => {
+      setCar({
+        battery: "999kWh",
+        body: values.body,
+        color: "PURPLE",
+        licence: values.licence,
+        model:values.model,
+        power: values.power,
+        range: "999 km",
+        torque: values.torque,
+        transmission: "SINGLE-SPEED GEARBOXES",
+        user_id: {
+          link: ownerId
+        }
+      })
+      if (isEdit) {
+        updateCar().then(res => {
+          fireAlert("Edit Vehicle","Vehicle edited successfully","success")
+          forceUpdate()
+        })
+
+      } else {
+        //add new car
+        addCar().then(res => {
+          fireAlert("Add Vehicle","Vehicle added successfully","success")
+          forceUpdate()
+        })
+      }
+      toggle();
+    },
+  });
 
 
   const { SearchBar } = Search;
@@ -159,6 +170,7 @@ const CarList = props => {
       text: "Power",
       dataField: "power",
       sort: true,
+      hidden: true,
     },
     {
       text: "Range",
@@ -170,6 +182,7 @@ const CarList = props => {
       text: "Torque",
       dataField: "torque",
       sort: true,
+      hidden: true,
     },
     {
       text: "Transmission",
@@ -237,6 +250,7 @@ const CarList = props => {
   const handleUserClick = arg => {
     const user = arg;
     console.log(user)
+    setOwnerId(user.user_id._id)
     setContact({
       _id: user._id,
       model: user.model,
@@ -269,13 +283,9 @@ const CarList = props => {
 
   const onClickDelete = async (users) => {
     await setId(users._id);
-    deleteCar().then((res) => {
-      let newState = [...vehicles]
-      let index = newState.findIndex((i) => {
-        return i._id === res.data.deleteOneCar._id
-      })
-      newState.splice(index, 1)
-      setVehicles(newState)
+    await deleteCar().then((res) => {
+      console.log(res.data)
+      forceUpdate()
       fireAlert("Delete Vehicle","Vehicle deleted successfully","success")
     })
 
@@ -287,6 +297,7 @@ const CarList = props => {
   };
 
   const handleUserClicks = () => {
+    setOwnerId("")
     setUserList("");
     setContact({})
     setIsEdit(false);
@@ -381,14 +392,15 @@ const CarList = props => {
                                                 <Label className="form-label">Owner</Label>
                                                  <Select
                                                    value={usersData?.users.find((o) => {
-                                                     return o._id === validation.values._id
+                                                     return o._id === ownerId
                                                    })}
                                                    isMulti={false}
                                                    getOptionValue={(option) => option._id}
                                                    getOptionLabel={(option) => option.email}
-                                                   onChange={validation.handleChange}
+                                                   name={'user_id'}
                                                    options={usersData?.users}
-
+                                                   onChange={(option) => setOwnerId(option._id)}
+                                                   onBlur={validation.handleBlur}
                                                  />
                                               </div>
                                             </Col>
@@ -421,9 +433,6 @@ const CarList = props => {
                                                     !!(validation.touched.body && validation.errors.body)
                                                   }
                                                 />
-                                                {validation.touched.body && validation.errors.body ? (
-                                                  <FormFeedback type="invalid">{validation.errors.body}</FormFeedback>
-                                                ) : null}
                                               </div>
                                               <div className="mb-3">
                                                 <Label className="form-label">Licence</Label>
@@ -439,7 +448,7 @@ const CarList = props => {
                                                   }
                                                 />
                                                 {validation.touched.licence && validation.errors.licence ? (
-                                                  <FormFeedback type="invalid">{validation.errors.description}</FormFeedback>
+                                                  <FormFeedback type="invalid">{validation.errors.licence}</FormFeedback>
                                                 ) : null}
                                               </div>
                                             </Col>

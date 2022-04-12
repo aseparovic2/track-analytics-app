@@ -55,6 +55,11 @@ export const TELEMETRY_BY_CAR = gql`
            mean_SAFETY_VCU_vehicle_ST {
                VCU_vehicle_ST
            }
+           mean_BFI_RR_temp_2 {
+               BFI_temp_motor_1
+               BFI_temp_motor_2
+               BFI_temp_motor_3
+           }
            mean_gps {
                pos_latitude
                pos_longitude

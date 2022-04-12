@@ -41,7 +41,7 @@ const UserActivate = props => {
   return (
     <React.Fragment>
       <MetaTags>
-        <title>Email Verification - iNSPECTOR</title>
+        <title>Email Verification - Rimac Telemetry</title>
       </MetaTags>
       <div className="home-btn d-none d-sm-block">
         <Link to="/" className="text-dark">
@@ -58,7 +58,7 @@ const UserActivate = props => {
                     <Col className="col-7">
                       <div className="text-primary p-4">
                         <h5 className="text-primary">Complete registration</h5>
-                        <p style={{ width: 300 }}>You have been invited to use the iNSPECTOR app</p>
+                        <p style={{ width: 300 }}>You have been invited to use the Rimac Telemetry app</p>
                       </div>
                     </Col>
                     <Col className="col-5 align-self-end">
@@ -177,7 +177,7 @@ const UserActivate = props => {
                       </div>
                       <div className="mt-5 text-center">
                         <p>
-                          By Registering you agree to the iNSPECTOR{" "}
+                          By Registering you agree to the Rimac Telemetry{" "}
                           <Link to="" className="font-weight-medium text-primary">
                             {" "}
                             Terms of Use

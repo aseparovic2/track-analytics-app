@@ -13,7 +13,7 @@ const UserInvites = () => {
     <React.Fragment>
       <div className="page-content">
         <MetaTags>
-          <title>Inspector Web app</title>
+          <title>Rimac Telemetry</title>
         </MetaTags>
         <Container fluid>
           <div className="container-fluid">

@@ -24,7 +24,7 @@ export const CAR_BY_USER = gql`
   query getCarByUser ($userId: String!) {
     cars (query: {
             user_id: {
-                _id: "6244a7bc2fc93ac9403043f9"
+                _id: $userId
                 }
         }, limit: 3000) {
         _id
@@ -89,4 +89,33 @@ mutation deleteCar ($carId: ObjectId!){
         }
     }
 }
+`
+
+export const UPDATE_CAR = gql`
+mutation updateCar ($carData: CarUpdateInput!, $carId: ObjectId!) {
+    updateOneCar (
+        set: $carData, 
+        query: {
+            _id: $carId
+        }
+    ) {
+        _id
+        battery
+        body
+        color
+        licence
+        model
+        power
+        range
+        torque
+        transmission
+        user_id {
+            _id
+            email
+            password
+            role
+        }
+    }
+}
+
 `

@@ -1,19 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react"
 import ReactApexChart from "react-apexcharts";
+import PropTypes from "prop-types"
+import Spinearea from "./spline-area"
 
-const Apaexlinecolumn = () => {
+const Apaexlinecolumn = (props) => {
+
+  const [motor1Data, setMotor1] = useState([])
+  const [motor2Data, setMotor2] = useState([])
+  const [motor3Data, setMotor3] = useState([])
+  const [categories1, setCategories] = useState([])
+
+
+  const [series1, setSeries] = useState([])
+
+  useEffect(() => {
+    let timeData = []
+    props.data.forEach(el => {
+      motor1Data.push(el.vehicleStats.mean_BFI_RR_temp_2.BFI_temp_motor_1)
+      motor2Data.push(el.vehicleStats.mean_BFI_RR_temp_2.BFI_temp_motor_2)
+      motor3Data.push(el.vehicleStats.mean_BFI_RR_temp_2.BFI_temp_motor_3)
+      timeData.push(el.time)
+    })
+    setCategories(timeData)
+    let ser = []
+    ser.push({
+      name: "Motor 1",
+      data: motor1Data
+    })
+    ser.push({
+      name: "Motor 2",
+      data: motor2Data
+    })
+    ser.push({
+      name: "Motor 3",
+      data: motor3Data
+    })
+    setSeries(ser)
+  }, [])
   const series = [
     {
-      name: "Fuel",
-      data: [46, 57, 59, 54, 62, 58, 64, 60, 66],
+      name: "Motor 1",
+      data: motor1Data,
     },
     {
-      name: "Battery level",
-      data: [74, 83, 102, 97, 86, 106, 93, 114, 94],
+      name: "Motor 2",
+      data: motor2Data,
     },
     {
-      name: "Milage",
-      data: [37, 42, 38, 26, 47, 50, 54, 55, 43],
+      name: "Motor 3",
+      data: motor3Data,
     },
   ];
   const options = {
@@ -40,21 +75,11 @@ const Apaexlinecolumn = () => {
 
     colors: ["#34c38f", "#556ee6", "#f46a6a"],
     xaxis: {
-      categories: [
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-      ],
+      categories: categories1,
     },
     yaxis: {
       title: {
-        text: "$ (thousands)",
+        text: "Temperature",
       },
     },
     grid: {
@@ -66,15 +91,20 @@ const Apaexlinecolumn = () => {
     tooltip: {
       y: {
         formatter: function (val) {
-          return "$ " + val + " thousands";
+          return "C " + val;
         },
       },
+      x: {
+        format: "dd/MM/yy HH:mm",
+      }
     },
   };
 
   return (
-    <ReactApexChart options={options} series={series} type="bar" height={350} />
+    <ReactApexChart options={options} series={series1} type="bar" height={350} />
   );
 };
-
+Apaexlinecolumn.propTypes = {
+  data: PropTypes.array
+}
 export default Apaexlinecolumn;

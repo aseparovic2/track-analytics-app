@@ -7,7 +7,7 @@ const ConfirmMail = () => {
   return (
     <React.Fragment>
       <MetaTags>
-        <title>Confirm Mail | INSPECTOR</title>
+        <title>Rimac Telemetry</title>
       </MetaTags>
       <div className="account-pages my-5 pt-sm-5">
 
@@ -15,7 +15,7 @@ const ConfirmMail = () => {
           <Row>
             <Col lg={12}>
               <div className="text-center mb-5 text-muted">
-                <p className="mt-3">INSPECTOR</p>
+                <p className="mt-3">Rimac Telemetry</p>
               </div>
             </Col>
           </Row>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 import {
   Button,
   Row,
@@ -24,8 +24,10 @@ import * as Yup from "yup"
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit"
 import paginationFactory, { PaginationListStandalone, PaginationProvider } from "react-bootstrap-table2-paginator"
 import BootstrapTable from "react-bootstrap-table-next"
-import {ALL_USERS} from "../../graphql/queries/users"
-import { useQuery } from "@apollo/client"
+import { ADD_USER, ALL_USERS, DELETE_USER, UPDATE_USER } from "../../graphql/queries/users"
+import { useMutation, useQuery } from "@apollo/client"
+import { ADD_CAR, DELETE_CAR, UPDATE_CAR } from "../../graphql/queries/cars"
+import { fireAlert } from "../../components/Common/Alert"
 
 const allCars = [
   {
@@ -39,14 +41,9 @@ const allCars = [
 ]
 
 const allRoles = [
-  {
-      label: "ROLES",
-    options: [
-      { label: "Admin", value: 1 },
-      { label: "Owner", value: 2 },
-      { label: "Engineer", value: 3 }
-    ]
-  }
+      { label: "admin", value: 1 },
+      { label: "user", value: 2 },
+      { label: "engineer", value: 3 }
 ]
 
 
@@ -55,7 +52,26 @@ const Users = () => {
   const [initialValue, setInitialValue] = useState({})
   const [isEdit, setIsEdit] = useState(false);
   const [modal, setModal] = useState(false);
-  const { loading, error, data} = useQuery(ALL_USERS);
+  const [roleId, setRoleId] = useState("")
+  const [globalId, setGlobalId] = useState("")
+  const [reducerValue, forceUpdate] = useReducer(x => x+1 , 0)
+
+  const { loading, error, data, refetch} = useQuery(ALL_USERS);
+  const [addUser] = useMutation(ADD_USER, {
+    variables: {
+      data: initialValue
+    }});
+
+  const [updateUser] = useMutation(UPDATE_USER, {
+    variables: {
+      data: initialValue,
+      userId: globalId
+    }});
+
+  const [deleteUser] = useMutation(DELETE_USER, {
+    variables: {
+      userId: globalId
+    }});
 
 
   const { SearchBar } = Search;
@@ -80,13 +96,34 @@ const Users = () => {
     initialValues: initialValue,
     validationSchema: Yup.object({
       email: Yup.string().email("Email is not valid!").required("Email is required"),
-      role: Yup.number().required("Role is required"),
+     // role: Yup.string().required("Role is required"),
     }),
     onSubmit: (values) => {
+
       if (isEdit) {
         //edit car
+        setInitialValue({
+          email: values.email,
+          role: roleId
+        })
+        console.log(values)
+        updateUser().then(res => {
+          fireAlert("Update User","User updated successfully","success")
+          forceUpdate()
+        })
       } else {
         //add new car
+
+        setInitialValue({
+          email: values.email,
+          password: values.password,
+          role: roleId
+        })
+        addUser().then(res => {
+          fireAlert("Add User","User added successfully","success")
+          forceUpdate()
+        })
+
       }
       toggle()
     },
@@ -105,8 +142,9 @@ const Users = () => {
   const handleUserClick = arg => {
     const user = arg;
     console.log(user)
+    setRoleId(user.role)
+    setGlobalId(user._id)
     setInitialValue({
-      id: user.id,
       email: user.email,
       role: user.role,
     });
@@ -114,6 +152,14 @@ const Users = () => {
 
     toggle();
   };
+
+  const onClickDelete = async (user) => {
+    await setGlobalId(user._id)
+    deleteUser().then((res) => {
+      forceUpdate()
+      fireAlert("Delete User","User deleted successfully","success")
+    })
+  }
 
   const userColumns = [
     {
@@ -165,15 +211,15 @@ const Users = () => {
   ];
 
   useEffect(() => {
-    console.log(data)
-  }, [data])
+    refetch()
+  }, [reducerValue])
 
 
   return (
     <React.Fragment>
       <div className="page-content">
         <MetaTags>
-          <title>Inspector Web app</title>
+          <title>Rimac Telemetry</title>
         </MetaTags>
         <Container fluid>
           <div className="container-fluid">
@@ -279,27 +325,12 @@ const Users = () => {
                                               onSubmit={(e) => {
                                                 e.preventDefault();
                                                 validation.handleSubmit();
-                                                return false;
+                                                //console.log("alelele")
+                                               // return false;
                                               }}
                                             >
                                               <Row form>
                                                 <Col xs={12}>
-                                                  <div className="mb-3">
-                                                    <Label className="form-label">Full Name</Label>
-                                                    <Input
-                                                      name="full_name"
-                                                      type="text"
-                                                      onChange={validation.handleChange}
-                                                      onBlur={validation.handleBlur}
-                                                      value={validation.values.full_name || ""}
-                                                      invalid={
-                                                        validation.touched.full_name && validation.errors.full_name ? true : false
-                                                      }
-                                                    />
-                                                    {validation.touched.full_name && validation.errors.full_name ? (
-                                                      <FormFeedback type="invalid">{validation.errors.full_name}</FormFeedback>
-                                                    ) : null}
-                                                  </div>
                                                   <div className="mb-3">
                                                     <Label className="form-label">Email</Label>
                                                     <Input
@@ -316,24 +347,34 @@ const Users = () => {
                                                       <FormFeedback type="invalid">{validation.errors.email}</FormFeedback>
                                                     ) : null}
                                                   </div>
-                                                  <div className="mb-3">
-                                                    <label className="control-label">
-                                                      Cars
-                                                    </label>
-                                                    <Select
-                                                      value={validation.values.cars}
-                                                      isMulti={true}
-                                                      onChange={validation.handleChange}
-                                                      options={allCars}
-                                                      classNamePrefix="select2-selection"
-                                                    />
-                                                  </div>
+
+                                                  {
+                                                    !isEdit &&
+                                                    <div className="mb-3">
+                                                      <Label className="form-label">Password</Label>
+                                                      <Input
+                                                        name="password"
+                                                        type="password"
+                                                        onChange={validation.handleChange}
+                                                        onBlur={validation.handleBlur}
+                                                        value={validation.values.password || ""}
+                                                        invalid={
+                                                          validation.touched.password && validation.errors.password ? true : false
+                                                        }
+                                                      />
+                                                      {validation.touched.password && validation.errors.password ? (
+                                                        <FormFeedback type="invalid">{validation.errors.password}</FormFeedback>
+                                                      ) : null}
+                                                    </div>
+                                                  }
                                                   <div className="mb-3">
                                                     <Label>Role</Label>
                                                     <Select
-                                                      value={validation.values.cars}
-                                                      onChange={validation.handleChange}
+                                                      onChange={(option) => setRoleId(option.label)}
                                                       options={allRoles}
+                                                      value={allRoles.find((o) => {
+                                                        return o.label.toLowerCase() === roleId
+                                                      })}
                                                       classNamePrefix="select2-selection"
                                                     />
                                                   </div>

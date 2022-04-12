@@ -7,14 +7,14 @@ const EmailVerificationMessage = () => {
     <React.Fragment>
       <div className="account-pages my-5 pt-sm-5">
         <MetaTags>
-          <title>Email Verification | INSPECTOR </title>
+          <title>Email Verification | Rimac Telemetry </title>
         </MetaTags>
         <Container>
           <Row>
             <Col lg={12}>
               <div className="text-center mb-5 text-muted">
                 {/*LOGO GOES HERE*/}
-                <p className="mt-3">INSPECTOR</p>
+                <p className="mt-3">Rimac Telemetry</p>
               </div>
             </Col>
           </Row>
