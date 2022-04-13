@@ -69,6 +69,76 @@ export const TELEMETRY_BY_CAR = gql`
 }
 
 `
+
+export const UNREGISTERED = gql`
+  query unregistered {
+   telemetry_data(query: {
+           car: {
+               _id: "6244b4b43b002944b2598e19"
+           }
+       }, limit: 3000) {
+       _id
+       car {
+           _id
+           battery
+           body
+           color
+           licence
+           model
+           power
+           range
+           torque
+           transmission
+           user_id {
+               _id
+           }
+       }
+       time
+       user_id {
+           _id
+       }
+       vehicleStats {
+           mean_HPI_FL_inverter_temp {
+               HPI_temp_IGBT1
+               HPI_temp_IGBT2
+               HPI_temp_IGBT3
+           }
+           mean_HPI_FR_inverter_temp {
+               HPI_temp_IGBT1
+               HPI_temp_IGBT2
+               HPI_temp_IGBT3
+           }
+           mean_PDU_HV_battery_performance {
+               PDU_HV_battery_current
+               PDU_HV_battery_voltage
+           }
+           mean_PDU_HV_consumptions {
+               PDU_HV_batt_consumption_charged
+               PDU_HV_batt_consumption_regen
+               PDU_HV_batt_consumption_total
+           }
+           mean_SAFETY_PCU_vehicle_ST {
+               PCU_accelerator_pedal
+               PCU_vehicle_mileage
+               PCU_vehicle_speed
+           }
+           mean_SAFETY_VCU_vehicle_ST {
+               VCU_vehicle_ST
+           }
+           mean_BFI_RR_temp_2 {
+               BFI_temp_motor_1
+               BFI_temp_motor_2
+               BFI_temp_motor_3
+           }
+           mean_gps {
+               pos_latitude
+               pos_longitude
+           }
+       }
+   }
+}
+
+`
 export const TELEMETRY_BY_RANGE = gql`
   query byRange ($startDate: String!, $endDate: String!) {
    telemetry_data(query: {

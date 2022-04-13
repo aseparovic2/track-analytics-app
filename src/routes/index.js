@@ -19,6 +19,8 @@ import UserProfiles from "../pages/Users/UserProfile"
 import UserInvites from "../pages/Users/UserInvites"
 import Rides from "../pages/Rides"
 import CarList from "../pages/Cars"
+import SharedDrives from "../pages/SharedDrives"
+import ShareRideProfile from "../pages/SharedDrives/profile"
 
 
 
@@ -41,7 +43,9 @@ const publicRoutes = [
   { path: "/user-activate", component: UserActivate},
   { path: "/email-verification-message", component: EmailVerificationMessage },
   { path: "/email-verification-code" ,component: EmailVerificationCode },
-  { path: "/email-confirmed", component: ConfirmMail }
+  { path: "/email-confirmed", component: ConfirmMail },
+  { path: "/shared", component: SharedDrives },
+  { path: "/shared-drive/:id", component: ShareRideProfile }
 ]
 
 export { publicRoutes, authProtectedRoutes }
