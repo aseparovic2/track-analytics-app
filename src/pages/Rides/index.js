@@ -27,7 +27,7 @@ import SimpleMap from "../../components/simple-map"
 import maintanence from "../../assets/images/interior.jpg"
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { TELEMETRY_BY_CAR, TELEMETRY_BY_RANGE } from "../../graphql/queries/telemetry"
-import { ALL_CARS } from "../../graphql/queries/cars"
+import { ALL_CARS, CAR_BY_USER } from "../../graphql/queries/cars"
 import TestTable from "../../components/TestTable"
 import DataTable from "../../components/Common/DataTable/DataTable"
 import { orgChartData } from "../../components/Company/fakeData"
@@ -46,12 +46,22 @@ const Rides = () => {
   const [expand, setExpanded] = useState({})
   const [generalData, setGeneralData] = useState([])
   const [globalLoading, setGlobalLoading] = useState(false)
+  const [globalCarsData, setGlobalCarsData] = useState([])
 
   const [dates, setDates] = useState({
     start_date: "",
     end_date: ""
   })
   const {  data: carData } = useQuery(ALL_CARS);
+
+  const [getCarForUser, {  }] = useLazyQuery(
+    CAR_BY_USER, {
+      variables: {
+        userId: "6244a7bc2fc93ac9403043f9"
+      }
+    },
+  );
+
 
 
   const [getDataByRange, {  }] = useLazyQuery(
@@ -76,6 +86,22 @@ const Rides = () => {
       time : '20/02/2022'
     }
   ]
+
+  useEffect(async () => {
+
+
+    if (localStorage.getItem("authUser")) {
+      const obj = JSON.parse(localStorage.getItem("authUser"))
+      if (obj.role === "user") {
+        await getCarForUser().then(res => {
+          console.log(res.data.cars)
+          setGlobalCarsData(res.data.cars)
+        })
+      } else {
+        setGlobalCarsData(carData?.cars)
+      }
+    }
+  }, [])
 
 
   const onDataFilter = async () => {
@@ -380,7 +406,7 @@ const Rides = () => {
                   Select one or multiple cars
                 </label>
                 <Select
-                  value={carData?.cars.find((o) => {
+                  value={globalCarsData?.find((o) => {
                     return o.value === selectedCar
                   })}
                   isMulti={false}
@@ -389,7 +415,7 @@ const Rides = () => {
                   onChange={(option) => {
                     setSelectedCar(option._id)
                   }}
-                  options={carData?.cars}
+                  options={globalCarsData}
                   classNamePrefix="select2-selection"
                 />
               </FormGroup>
@@ -507,18 +533,18 @@ const Rides = () => {
                     </Card>
                   </Col>
                 </Row>
-                <Row>
-                  <Col lg="122">
-                    <Card>
-                      <CardBody>
-                        <h4 className="card-title mb-4">Ride map</h4>
-                        <div id="leaflet-map" className="leaflet-map">
-                          <SimpleMap data={generalData}/>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  </Col>
-                </Row>
+                {/*<Row>*/}
+                {/*  <Col lg="122">*/}
+                {/*    <Card>*/}
+                {/*      <CardBody>*/}
+                {/*        <h4 className="card-title mb-4">Ride map</h4>*/}
+                {/*        <div id="leaflet-map" className="leaflet-map">*/}
+                {/*          <SimpleMap data={generalData}/>*/}
+                {/*        </div>*/}
+                {/*      </CardBody>*/}
+                {/*    </Card>*/}
+                {/*  </Col>*/}
+                {/*</Row>*/}
               </>
           }
 

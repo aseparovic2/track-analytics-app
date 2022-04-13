@@ -151,6 +151,12 @@ const Login = () => {
                           Forgot your password?
                         </Link>
                       </div>
+
+                      <div className="mt-4 text-center">
+                        <Link to="/shared" className="text-muted">
+                          View shared data
+                        </Link>
+                      </div>
                     </Form>
                   </div>
                 </CardBody>

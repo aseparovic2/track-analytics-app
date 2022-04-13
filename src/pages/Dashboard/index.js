@@ -149,7 +149,7 @@ const Dashboard = () => {
                                 <p className="text-muted text-truncate mb-2">
                                   Total Cars
                                 </p>
-                                <h5 className="mb-0">1</h5>
+                                <h5 className="mb-0">19</h5>
                               </div>
                             </Col>
                             <Col xs="6">
@@ -173,7 +173,7 @@ const Dashboard = () => {
               <Col className="col-12">
                 <Card>
                   <CardBody>
-                    <CardTitle className="h4">Latest Sensor informations</CardTitle><br/>
+                    <CardTitle className="h4">Sensor informations - Exceeding Tolerances</CardTitle><br/>
 
                     <PaginationProvider
                       pagination={paginationFactory(pageOptions)}

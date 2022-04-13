@@ -53,10 +53,6 @@ const ProfileMenu = props => {
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block"/>
         </DropdownToggle>
         <DropdownMenu className="dropdown-menu-end">
-          <DropdownItem tag="a" href="#">
-            <i className="bx bx-wrench font-size-16 align-middle me-1"/>
-            {props.t("Settings")}
-          </DropdownItem>
           <div className="dropdown-divider"/>
           <div className="dropdown-item" onClick={() => {
             localStorage.removeItem("authUser")

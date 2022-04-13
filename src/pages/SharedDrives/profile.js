@@ -462,18 +462,18 @@ const ShareRideProfile = () => {
                   </Card>
                 </Col>
               </Row>
-              <Row>
-                <Col lg="122">
-                  <Card>
-                    <CardBody>
-                      <h4 className="card-title mb-4">Ride map</h4>
-                      <div id="leaflet-map" className="leaflet-map">
-                        <SimpleMap data={generalData}/>
-                      </div>
-                    </CardBody>
-                  </Card>
-                </Col>
-              </Row>
+              {/*<Row>*/}
+              {/*  <Col lg="122">*/}
+              {/*    <Card>*/}
+              {/*      <CardBody>*/}
+              {/*        <h4 className="card-title mb-4">Ride map</h4>*/}
+              {/*        <div id="leaflet-map" className="leaflet-map">*/}
+              {/*          <SimpleMap data={generalData}/>*/}
+              {/*        </div>*/}
+              {/*      </CardBody>*/}
+              {/*    </Card>*/}
+              {/*  </Col>*/}
+              {/*</Row>*/}
             </>
           }
 

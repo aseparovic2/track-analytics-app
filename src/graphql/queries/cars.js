@@ -21,7 +21,7 @@ export const ALL_CARS = gql`
 `;
 
 export const CAR_BY_USER = gql`
-  query getCarByUser ($userId: String!) {
+  query getCarByUser ($userId: ObjectId!) {
     cars (query: {
             user_id: {
                 _id: $userId
