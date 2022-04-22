@@ -12,8 +12,8 @@ import {
   Row,
   UncontrolledAlert
 } from "reactstrap"
-import avatar from "../../../assets/images/users/avatar-2.jpg"
-import companyImage from "../../../assets/images/companies/img-3.png"
+import avatar from "../../../assets/images/avatar-2.jpg"
+import companyImage from "../../../assets/images/rimac-avatar.jpg"
 import Dropzone from "react-dropzone"
 import { Link } from "react-router-dom"
 import { useFormik } from "formik"

@@ -8,31 +8,18 @@ import {
   CardTitle,
   Col,
   Container,
-  Form,
-  FormGroup,
-  Input,
-  InputGroup,
-  Label,
   Row, Spinner
 } from "reactstrap"
-import Select from "react-select";
 import Breadcrumbs from "components/Common/Breadcrumb"
 import "flatpickr/dist/themes/material_blue.css";
-import Flatpickr from "react-flatpickr";
-import ReactTable from "react-table";
 import ExcelJs from "exceljs";
 import Spinearea from "../../components/spline-area"
 import Apaexlinecolumn from "../../components/apex"
-import SimpleMap from "../../components/simple-map"
-import maintanence from "../../assets/images/interior.jpg"
 import { useLazyQuery, useQuery } from "@apollo/client";
 import { TELEMETRY_BY_CAR, TELEMETRY_BY_RANGE } from "../../graphql/queries/telemetry"
 import { ALL_CARS } from "../../graphql/queries/cars"
-import TestTable from "../../components/TestTable"
 import DataTable from "../../components/Common/DataTable/DataTable"
-import { orgChartData } from "../../components/Company/fakeData"
-import { removeBodyCss } from "../../helpers/removeBodyCss"
-import { AUTH_USER } from "../../graphql/queries/users"
+
 
 
 

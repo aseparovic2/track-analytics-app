@@ -2,8 +2,18 @@
 
 <h3>About the project</h3>
 <br>
-<p>Project description goes here</p>
+<p>Web application for displaying various information about the Rimac car </p>
 <br>
+<h3>App Funcitonal Requirements</h3>
+
+<ul>
+<li>Display selected data from one car, for a selected time period, in tabular form that is
+easy to read and navigate on mobile, tablet, and desktop devices</li>
+<li>Display selected data from one car, for a selected time period, in a graphical form that is
+easy to read and navigate on mobile, tablet, and desktop devices</li>
+<li>Display selected data from multiple cars, for a selected time period, in a graphical form</li>
+<li>Share selected data subsets with other, non-registered users</li>
+</ul>
 <h3>Installation</h3>
 
 <ul>

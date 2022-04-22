@@ -5,9 +5,7 @@ import {
   Col,
   Row, Card, CardBody, CardTitle
 } from "reactstrap"
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { app } from "../../firebase/firebase-config"
-import avatar from "assets/images/users/avatar-2.jpg"
+import avatar from "assets/images/avatar-2.jpg"
 
 import ToolkitProvider, { Search } from "react-bootstrap-table2-toolkit"
 import BootstrapTable from "react-bootstrap-table-next"
@@ -15,10 +13,6 @@ import paginationFactory, {
   PaginationProvider, PaginationListStandalone,
   SizePerPageDropdownStandalone
 } from 'react-bootstrap-table2-paginator';
-
-
-
-
 
 const columns = [{
   dataField: 'id',
@@ -88,28 +82,16 @@ const sizePerPageList = [
 
 
 
-//const db = getFirestore(app);
 const { SearchBar } = Search;
 
 const Dashboard = () => {
   const [data,setData] = useState([])
   const [user,setUser] = useState([])
-  const fetchData =  () => {
-    app.collection('telemetry_data').get().then((querySnapshot) => {
-      querySnapshot.forEach(el => {
-        var data = el.data()
-        setData(arr => [...arr, data])
-      })
-    })
-  }
+
   useEffect(() => {
-    fetchData()
     const obj = JSON.parse(localStorage.getItem("authUser"))
     setUser(obj)
   },[])
-  useEffect(() => {
-    console.log(data)
-  },[data])
   return (
       <React.Fragment>
         <div className="page-content">

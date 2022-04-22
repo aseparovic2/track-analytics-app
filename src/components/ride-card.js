@@ -8,7 +8,7 @@ import {
   Col,
   UncontrolledTooltip,
 } from "reactstrap"
-import images from "assets/images"
+import image from "assets/images/avatar-2.jpg"
 import { isEmpty, size, map } from "lodash"
 
 const RideContact = props => {
@@ -37,7 +37,7 @@ const RideContact = props => {
               <div className="mb-4">
                 <img
                   className="rounded-circle avatar-sm"
-                  src={images[user.img]}
+                  src={image}
                   alt=""
                 />
               </div>

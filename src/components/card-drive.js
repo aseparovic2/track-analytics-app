@@ -8,8 +8,7 @@ import {
   Col,
   UncontrolledTooltip,
 } from "reactstrap"
-import images from "assets/images"
-import { isEmpty, size, map } from "lodash"
+import image from 'assets/images/avatar-2.jpg'
 
 const CardDrive = props => {
   const { user } = props
@@ -38,7 +37,7 @@ const CardDrive = props => {
               <div className="mb-4">
                 <img
                   className="rounded-circle avatar-sm"
-                  src={images[user.img]}
+                  src={image}
                   alt=""
                 />
               </div>

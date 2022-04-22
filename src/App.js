@@ -16,8 +16,6 @@ import NonAuthLayout from "./components/NonAuthLayout"
 // Import scss
 import "./assets/scss/theme.scss"
 //firebase
-import {app} from "./firebase/firebase-config"
-
 
 
 
