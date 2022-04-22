@@ -14,6 +14,15 @@ easy to read and navigate on mobile, tablet, and desktop devices</li>
 <li>Display selected data from multiple cars, for a selected time period, in a graphical form</li>
 <li>Share selected data subsets with other, non-registered users</li>
 </ul>
+
+<h3>Technologies</h3>
+
+<ul>
+<li>ReactJS, Hooks, Functional components</li>
+<li>SCSS,Material Design</li>
+<li>Apollo Client - GraphQL</li>
+<li>MongoDB</li>
+</ul>
 <h3>Installation</h3>
 
 <ul>
